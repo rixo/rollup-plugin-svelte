@@ -1,15 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const relative = require('require-relative');
-const { version } = require('svelte/package.json');
 const { createFilter } = require('rollup-pluginutils');
 const { encode, decode } = require('sourcemap-codec');
 
-const major_version = +version[0];
-
-const { compile, preprocess } = major_version >= 3
-	? require('svelte/compiler.js')
-	: require('svelte');
+const {
+	major_version,
+	compile,
+	preprocess,
+} = require('./resolve-svelte');
 
 function sanitize(input) {
 	return path
