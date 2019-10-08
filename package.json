@@ -5,6 +5,7 @@
   "main": "index.js",
   "files": [
     "index.js",
+    "resolve-svelte.js",
     "README.md",
     "LICENSE"
   ],
