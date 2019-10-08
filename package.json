@@ -1,7 +1,7 @@
 {
-  "name": "rollup-plugin-svelte",
-  "version": "5.1.0",
-  "description": "Compile Svelte components with Rollup",
+  "name": "rollup-plugin-svelte-hot",
+  "version": "0.0.0",
+  "description": "Compile Svelte components with Rollup and HMR with Nollup",
   "main": "index.js",
   "files": [
     "index.js",
@@ -13,17 +13,20 @@
     "lint": "eslint index.js",
     "prepublishOnly": "npm run lint && npm test"
   },
-  "repository": "rollup/rollup-plugin-svelte",
+  "repository": "git@github.com:rixo/rollup-plugin-svelte.git",
   "keywords": [
     "svelte",
+    "nollup",
+    "hot",
+    "hmr",
     "rollup"
   ],
   "author": "Rich Harris",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rollup/rollup-plugin-svelte/issues"
+    "url": "https://github.com/rixo/rollup-plugin-svelte-hot/issues"
   },
-  "homepage": "https://github.com/rollup/rollup-plugin-svelte#README",
+  "homepage": "https://github.com/rixo/rollup-plugin-svelte",
   "devDependencies": {
     "eslint": "^5.10.0",
     "locate-character": "^2.0.5",
@@ -41,6 +44,7 @@
   },
   "peerDependencies": {
     "svelte": "*",
-    "rollup": ">=0.60.0"
+    "rollup": ">=0.60.0",
+    "nollup": ">=0.7.7"
   }
 }

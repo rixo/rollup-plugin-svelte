@@ -1,15 +1,28 @@
-# rollup-plugin-svelte
+# rollup-plugin-svelte-hot
 
-Compile Svelte components.
+This is a fork of [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte) that integrates [rollup-plugin-svelte-hmr](https://github.com/rixo/rollup-plugin-svelte-hmr) to compile Svelte components and provide support for HMR over [Nollup](https://github.com/PepsRyuu/nollup).
 
+- `rollup-plugin-svelte` only compiles Svelte components
+
+- `rollup-plugin-svelte-hmr` only add HMR support for Svelte components
+
+- `rollup-plugin-svelte-hot` (this plugin) combines both functionality
+
+The main reason why this plugin exists is to add support to preserve local component state over HMR updates. Svelte makes it possible (even easy), but the HMR-only plugin can't currently leverage it because it requires a change in Svelte dev API. This plugin is able to workaround this limitation because it has access to Svelte [compiler's output](https://svelte.dev/docs#svelte_compile) (that contains useful metadata about components).
+
+This plugin can be used as a drop-in replacement for `rollup-plugin-svelte`. It adds one additional option to enable HMR: `hot`.
+
+Use [svelte-template-hot](https://github.com/rixo/svelte-template-hot) to quickly bootstrap a new project, or as a reference to add this to your project (more detailed instructions to come).
 
 ## Installation
 
 ```bash
-npm install --save-dev svelte rollup-plugin-svelte
+npm install --save-dev svelte rollup-plugin-svelte-hot
 ```
 
 Note that we need to install Svelte as well as the plugin, as it's a 'peer dependency'.
+
+You'll also need Nollup, Rollup, etc...
 
 
 ## Usage
@@ -17,7 +30,7 @@ Note that we need to install Svelte as well as the plugin, as it's a 'peer depen
 ```js
 // rollup.config.js
 import * as fs from 'fs';
-import svelte from 'rollup-plugin-svelte';
+import svelte from 'rollup-plugin-svelte-hot';
 
 export default {
   input: 'src/main.js',
@@ -27,6 +40,16 @@ export default {
   },
   plugins: [
     svelte({
+      // Use `hot: true` to use default options (as follow)
+      hot: {
+        // Prevent preserving local component state
+        noPreserveState: false,
+        // Prevent doing a full reload on next HMR update after fatal error
+        noReload: false,
+        // Try to recover after runtime errors in component init
+        optimistic: false
+      },
+
       // By default, all .svelte and .html files are compiled
       extensions: ['.my-custom-extension'],
 
