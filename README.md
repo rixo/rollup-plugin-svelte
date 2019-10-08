@@ -4,13 +4,15 @@ This is a fork of [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin
 
 - `rollup-plugin-svelte` only compiles Svelte components
 
-- `rollup-plugin-svelte-hmr` only add HMR support for Svelte components
+- `rollup-plugin-svelte-hmr` only adds HMR support for Svelte components
 
 - `rollup-plugin-svelte-hot` (this plugin) combines both functionality
 
 The main reason why this plugin exists is to add support to preserve local component state over HMR updates. Svelte makes it possible (even easy), but the HMR-only plugin can't currently leverage it because it requires a change in Svelte dev API. This plugin is able to workaround this limitation because it has access to Svelte [compiler's output](https://svelte.dev/docs#svelte_compile) (that contains useful metadata about components).
 
 This plugin can be used as a drop-in replacement for `rollup-plugin-svelte`. It adds one additional option to enable HMR: `hot`.
+
+## Quick start / Template
 
 Use [svelte-template-hot](https://github.com/rixo/svelte-template-hot) to quickly bootstrap a new project, or as a reference to add this to your project (more detailed instructions to come).
 
