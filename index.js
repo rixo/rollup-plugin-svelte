@@ -3,6 +3,7 @@ const path = require('path');
 const relative = require('require-relative');
 const { createFilter } = require('rollup-pluginutils');
 const { encode, decode } = require('sourcemap-codec');
+const svelteHmr = require('rollup-plugin-svelte-hmr');
 
 const {
 	major_version,
@@ -30,6 +31,7 @@ const pluginOptions = {
 	extensions: true,
 	emitCss: true,
 	preprocess: true,
+	hot: true,
 
 	// legacy — we might want to remove/change these in a future version
 	onwarn: true,
@@ -117,6 +119,20 @@ class CssWriter {
 	}
 }
 
+const first = (a, b) => function(...args) {
+	const resultA = a.apply(this, args);
+	if (resultA && resultA.then) {
+		return resultA.then(x => x || b.apply(this, args));
+	}
+	return resultA == null ? b.apply(this, args) : resultA;
+};
+
+const after = (a, b) => function(...args) {
+	const result = a.apply(this, args);
+	b.apply(this, args);
+	return result;
+};
+
 module.exports = function svelte(options = {}) {
 	const filter = createFilter(options.include, options.exclude);
 
@@ -155,7 +171,10 @@ module.exports = function svelte(options = {}) {
 		fixed_options.css = false;
 	}
 
-	return {
+	// hot
+	const hotPlugin = options.hot && svelteHmr(options.hot);
+
+	const plugin = {
 		name: 'svelte',
 
 		load(id) {
@@ -287,6 +306,12 @@ module.exports = function svelte(options = {}) {
 					compiled.js.dependencies = dependencies;
 				}
 
+				if (hotPlugin) {
+					return Object.assign({}, compiled.js, {
+						code: hotPlugin._transform.call(this, compiled.js.code, id, compiled),
+					});
+				}
+
 				return compiled.js;
 			});
 		},
@@ -333,4 +358,15 @@ module.exports = function svelte(options = {}) {
 			}
 		}
 	};
+
+	if (hotPlugin) {
+		return Object.assign({}, hotPlugin, plugin, {
+			resolveId: first(hotPlugin.resolveId, plugin.resolveId),
+			load: first(hotPlugin.load, plugin.load),
+			generateBundle: after(plugin.generateBundle, hotPlugin.generateBundle),
+			// transform is called from here
+		});
+	}
+
+	return plugin;
 };
