@@ -172,7 +172,8 @@ module.exports = function svelte(options = {}) {
 	}
 
 	// hot
-	const hotPlugin = options.hot && svelteHmr(options.hot);
+	const hotPluginOptions = Object.assign({ hot: true }, options.hot);
+	const hotPlugin = options.hot && svelteHmr(hotPluginOptions);
 
 	const plugin = {
 		name: 'svelte',
