@@ -6,7 +6,7 @@ It supports HMR both with [Nollup](https://github.com/PepsRyuu/nollup) or [Rollu
 
 HMR is not officially supported by Svelte 3 yet. Progress can be tracked in [this issue](https://github.com/sveltejs/svelte/issues/3632).
 
-Meanwhile, please report your issues regarding HMR (with Rollup / Nollup) in this project's [issue tracker](https://github.com/rixo/rollup-plugin-svelte-hot/issues). By the way, now is a very good time to share your bright ideas & suggestions about Svelte HMR, since this is all very much a work in progress. Mere feed is welcome, too.
+Meanwhile, please report your issues regarding HMR (with Rollup / Nollup) in this project's [issue tracker](https://github.com/rixo/rollup-plugin-svelte-hot/issues). By the way, now is a very good time to share your ideas & suggestions about Svelte HMR, since this is all very much a work in progress. Mere feedback is welcome, too.
 
 ## Templates
 
