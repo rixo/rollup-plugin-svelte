@@ -49,6 +49,8 @@ export default {
       // `npm run build`, for example).
       //
       hot: hot && {
+        // Set true to enable support for Nollup
+        nollup: false,
         // Prevent preserving local component state
         noPreserveState: false,
         // Prevent doing a full reload on next HMR update after fatal error
