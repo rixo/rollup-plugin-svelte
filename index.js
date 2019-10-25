@@ -3,7 +3,7 @@ const path = require('path');
 const relative = require('require-relative');
 const { createFilter } = require('rollup-pluginutils');
 const { encode, decode } = require('sourcemap-codec');
-const svelteHmr = require('rollup-plugin-svelte-hmr');
+const svelteHmr = require('./hmr');
 
 const {
 	major_version,
