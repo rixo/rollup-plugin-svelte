@@ -39,12 +39,14 @@
   },
   "dependencies": {
     "require-relative": "^0.8.7",
-    "rollup-plugin-svelte-hmr": "0.0.13",
+    "rollup-plugin-svelte-hmr": "^0.0.14",
     "rollup-pluginutils": "^2.3.3",
     "sourcemap-codec": "^1.4.4"
   },
+  "optionalDependencies": {
+    "nollup": ">=0.7.7"
+  },
   "peerDependencies": {
-    "nollup": ">=0.7.7",
     "rollup": ">=0.60.0",
     "svelte": ">=3.6.0"
   }
