@@ -1,49 +1,54 @@
 # rollup-plugin-svelte-hot
 
-This is a fork of [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte) that integrates [rollup-plugin-svelte-hmr](https://github.com/rixo/rollup-plugin-svelte-hmr) to compile Svelte components and provide support for HMR over [Nollup](https://github.com/PepsRyuu/nollup).
+This is a fork of official [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte) with added support for HMR.
 
-- `rollup-plugin-svelte` only compiles Svelte components
+It supports HMR both with [Nollup](https://github.com/PepsRyuu/nollup) or [Rollup](https://github.com/rollup/rollup) with (experimental) [rollup-plugin-hot](https://github.com/rixo/rollup-plugin-hot).
 
-- `rollup-plugin-svelte-hmr` only adds HMR support for Svelte components
+HMR is not officially supported by Svelte 3 yet. Progress can be tracked in [this issue](https://github.com/sveltejs/svelte/issues/3632).
 
-- `rollup-plugin-svelte-hot` (this plugin) combines both functionality
+Meanwhile, please report your issues regarding HMR (with Rollup / Nollup) in this project's [issue tracker](https://github.com/rixo/rollup-plugin-svelte-hot/issues). By the way, now is a very good time to share your bright ideas & suggestions about Svelte HMR, since this is all very much a work in progress. Mere feed is welcome, too.
 
-The main reason why this plugin exists is to add support to preserve local component state over HMR updates. Svelte makes it possible (even easy), but the HMR-only plugin can't currently leverage it because it requires a change in Svelte dev API. This plugin is able to workaround this limitation because it has access to Svelte [compiler's output](https://svelte.dev/docs#svelte_compile) (that contains useful metadata about components).
+## Templates
 
-This plugin can be used as a drop-in replacement for `rollup-plugin-svelte`. It adds one additional option to enable HMR: `hot`.
+To quickly bootstrap a new project, or for example purpose, you can use the following templates. They are copies of official templates, with the bare minimum added to support HMR with this plugin.
 
-## Quick start / Template
+- [svelte-template-hot](https://github.com/rixo/svelte-template-hot): hot version of the official Svelte template for Rollup.
 
-Use [svelte-template-hot](https://github.com/rixo/svelte-template-hot) to quickly bootstrap a new project, or as a reference to add this to your project (more detailed instructions to come).
+- [sapper-template-hot](https://github.com/rixo/sapper-template-hot/tree/rollup): the `rollup` branch of this template uses this plugin to do Sapper + Rollup + HMR. This one is still very (very) much a work in progress.
 
 ## Installation
 
 ```bash
-npm install --save-dev svelte rollup-plugin-svelte-hot
+npm install --save-dev rollup-plugin-svelte-hot
 ```
-
-Note that we need to install Svelte as well as the plugin, as it's a 'peer dependency'.
-
-You'll also need Nollup, Rollup, etc...
-
 
 ## Usage
 
+This plugin can be used as a drop-in replacement for `rollup-plugin-svelte`. It adds just one additional config option to enable HMR: `hot`. It aims to remain as close to the official plugin as possible. Please refer to official docs for general usage of the plugin. For HMR specific stuff, see bellow.
+
 ```js
 // rollup.config.js
-import * as fs from 'fs';
 import svelte from 'rollup-plugin-svelte-hot';
+
+...
+
+const hot = !production && !!watch
 
 export default {
   input: 'src/main.js',
   output: {
     file: 'public/bundle.js',
+    // format will be overridden to 'system' when using Rollup + HMR
     format: 'iife'
   },
   plugins: [
     svelte({
-      // Use `hot: true` to use default options (as follow)
-      hot: {
+      // Use `hot: true` to use default options (as follow).
+      //
+      // Set `hot: false` to disable HMR shenanigans (you need this for
+      // `npm run build`, for example).
+      //
+      hot: hot && {
         // Prevent preserving local component state
         noPreserveState: false,
         // Prevent doing a full reload on next HMR update after fatal error
@@ -52,98 +57,23 @@ export default {
         optimistic: false
       },
 
-      // By default, all .svelte and .html files are compiled
-      extensions: ['.my-custom-extension'],
+      // `dev: true` is required with HMR
+      dev: hot,
 
-      // You can restrict which files are compiled
-      // using `include` and `exclude`
-      include: 'src/components/**/*.svelte',
+      // Separate CSS file is not supported during hMR (neither with Nollup
+      // nor rollup-plugin-hot), so we just disable it when `hot` is true.
+      ...(!hot && {
+        css: css => {
+          css.write('public/bundle.css')
+        },
+      }),
 
-      // By default, the client-side compiler is used. You
-      // can also use the server-side rendering compiler
-      generate: 'ssr',
-
-      // Optionally, preprocess components with svelte.preprocess:
-      // https://svelte.dev/docs#svelte_preprocess
-      preprocess: {
-        style: ({ content }) => {
-          return transformStyles(content);
-        }
-      },
-
-      // Emit CSS as "files" for other plugins to process
-      emitCss: true,
-
-      // Extract CSS into a separate file (recommended).
-      // See note below
-      css: function (css) {
-        console.log(css.code); // the concatenated CSS
-        console.log(css.map); // a sourcemap
-
-        // creates `main.css` and `main.css.map` — pass `false`
-        // as the second argument if you don't want the sourcemap
-        css.write('public/main.css');
-      },
-
-      // Warnings are normally passed straight to Rollup. You can
-      // optionally handle them here, for example to squelch
-      // warnings with a particular code
-      onwarn: (warning, handler) => {
-        // e.g. don't warn on <marquee> elements, cos they're cool
-        if (warning.code === 'a11y-distracting-elements') return;
-
-        // let Rollup handle all other warnings normally
-        handler(warning);
-      }
+      // See official rollup-plugin-svelte docs for all available options:
+      //
+      //   https://github.com/rollup/rollup-plugin-svelte
+      //
+      ...
     })
   ]
 }
 ```
-
-
-## Preprocessing and dependencies
-
-If you are using the `preprocess` feature, then your callback responses may — in addition to the `code` and `map` values described in the Svelte compile docs — also optionally include a `dependencies` array. This should be the paths of additional files that the preprocessor result in some way depends upon. In Rollup 0.61+ in watch mode, any changes to these additional files will also trigger re-builds.
-
-
-## `pkg.svelte`
-
-If you're importing a component from your node_modules folder, and that component's package.json has a `"svelte"` property...
-
-```js
-{
-  "name": "some-component",
-
-  // this means 'some-component' resolves to 'some-component/src/SomeComponent.svelte'
-  "svelte": "src/MyComponent.svelte"
-}
-```
-
-...then this plugin will ensure that your app imports the *uncompiled* component source code. That will result in a smaller, faster app (because code is deduplicated, and shared functions get optimized quicker), and makes it less likely that you'll run into bugs caused by your app using a different version of Svelte to the component.
-
-Conversely, if you're *publishing* a component to npm, you should ship the uncompiled source (together with the compiled distributable, for people who aren't using Svelte elsewhere in their app) and include the `"svelte"` property in your package.json.
-
-If you are publishing a package containing multiple components, you can create an `index.js` file that re-exports all the components, like this:
-
-```js
-export { default as Component1 } from './Component1.svelte';
-export { default as Component2 } from './Component2.svelte';
-```
-
-and so on. Then, in `package.json`, set the `svelte` property to point to this `index.js` file.
-
-
-## Extracting CSS
-
-If your Svelte components contain `<style>` tags, by default the compiler will add JavaScript that injects those styles into the page when the component is rendered. That's not ideal, because it adds weight to your JavaScript, prevents styles from being fetched in parallel with your code, and can even cause CSP violations.
-
-A better option is to extract the CSS into a separate file. Using the `css` option as shown above would cause a `public/main.css` file to be generated each time the bundle is built (or rebuilt, if you're using rollup-watch), with the normal scoping rules applied.
-
-If you have other plugins processing your CSS (e.g. rollup-plugin-scss), and want your styles passed through to them to be bundled together, you can use `emitCss: true`.
-
-Alternatively, if you're handling styles in some other way and just want to prevent the CSS being added to your JavaScript bundle, use `css: false`.
-
-
-## License
-
-MIT
