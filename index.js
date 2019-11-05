@@ -120,6 +120,8 @@ class CssWriter {
 }
 
 const first = (a, b) => function(...args) {
+	if (!a) return b.apply(this, args);
+	if (!b) return a.apply(this, args);
 	const resultA = a.apply(this, args);
 	if (resultA && resultA.then) {
 		return resultA.then(x => x || b.apply(this, args));
@@ -129,8 +131,9 @@ const first = (a, b) => function(...args) {
 
 const after = (a, b) => function(...args) {
 	const result = a.apply(this, args);
-	b.apply(this, args);
-	return result;
+	return Promise.resolve()
+		.then(() => b && b.apply(this, args))
+		.then(() => result);
 };
 
 module.exports = function svelte(options = {}) {
