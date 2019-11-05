@@ -7,9 +7,15 @@ const resolveSvelte = () => {
 		path.isAbsolute(name) ? name : path.join(base, name);
 
 	if (SVELTE) {
+		const base = absolute(SVELTE, process.cwd());
+		// eslint-disable-next-line no-console
+		console.log(
+			'[HMR:Svelte]',
+			`Use Svelte location from SVELTE env variable: ${base}`
+		);
 		return {
 			req: require,
-			base: absolute(SVELTE, process.cwd()),
+			base,
 		};
 	} else {
 		return {
