@@ -9,6 +9,7 @@ const {
 	major_version,
 	compile,
 	preprocess,
+	resolveSvelteId,
 } = require('./resolve-svelte');
 
 function sanitize(input) {
@@ -188,6 +189,12 @@ module.exports = function svelte(options = {}) {
 
 		resolveId(importee, importer) {
 			if (cssLookup.has(importee)) { return importee; }
+
+			// force resolution of svelte imports to the same location as the one used
+			// for compilation
+			const svelteId = resolveSvelteId.call(this, importee, importer);
+			if (svelteId) return svelteId;
+
 			if (!importer || importee[0] === '.' || importee[0] === '\0' || path.isAbsolute(importee))
 				return null;
 
