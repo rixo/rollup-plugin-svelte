@@ -1,28 +1,25 @@
 const path = require('path');
-const { createFilter } = require('rollup-pluginutils');
 const { createMakeHot } = require('svelte-hmr');
 
 const hotApiAlias = 'rollup-plugin-svelte-hmr/_/hot-api';
 
 const svelteHmr = (options = {}) => {
-	const { hot = true, nollup = false, patchSapperDevClient = false } = options;
+	const {
+		hot = true,
+		nollup = false,
+		patchSapperDevClient = false,
+		test = false,
+	} = options;
 
-	const filter = createFilter('**/*.svelte', []);
+	const hotApi = path.join(__dirname, 'runtime.js');
+	const makeHot = createMakeHot(hotApi);
 
-	const hotApiPath = `${__dirname}/hot-api/${nollup ? 'nollup' : 'rollup'}.js`;
-	const hotApi = path.resolve(hotApiPath);
-	const makeHot = createMakeHot(hotApi, {
-		meta: nollup ? 'module' : 'import.meta',
-	});
 	const aliases = {
 		[hotApiAlias]: hotApi,
 	};
 
 	function _transform(code, id, compiled) {
-		if (!hot) return;
-		if (!filter(id)) return;
-
-		this.addWatchFile(hotApi);
+		if (!hot) return code;
 
 		const transformed = makeHot(id, code, options, compiled);
 
@@ -45,7 +42,8 @@ const svelteHmr = (options = {}) => {
 			}
 		}
 		if (fs) {
-			const name = path.join(path.dirname(from), target);
+			const base = from ? path.dirname(from) : process.cwd();
+			const name = path.join(base, target);
 			const extensions = ['.js', '.svelte'];
 			for (const ext of extensions) {
 				const filename = name + ext;
@@ -57,7 +55,7 @@ const svelteHmr = (options = {}) => {
 	};
 
 	function load(id) {
-		if (!fs) return;
+		if (!fs) return null;
 		return new Promise((resolve, reject) => {
 			fs.readFile(id, 'utf8', (err, contents) => {
 				if (err) reject(err);
@@ -104,23 +102,33 @@ const svelteHmr = (options = {}) => {
 
 	const _onRenderError = addListener('renderError');
 
-	return {
-		name: 'svelte-hmr',
-		nollupBundleInit,
-		resolveId,
-		load,
-		generateBundle,
-		renderError,
-		transform(code, id) {
-			return _transform.call(this, code, id);
+	return Object.assign(
+		{
+			name: 'svelte-hmr',
+			generateBundle,
+			renderError,
+			transform(code, id) {
+				return _transform.call(this, code, id);
+			},
+			// used by rollup-plugin-svelte-hot (i.e. that's here, now!)
+			_transform,
 		},
-		// used by rollup-plugin-svelte
-		_transform,
+		nollup && Object.assign({
+			nollupBundleInit,
+		}, test && {
+			_onBundleGenerated,
+			_onRenderError,
+		}),
+		patchSapperDevClient && {
+			resolveId,
+		},
 		// used by test driver
-		_setFs,
-		_onBundleGenerated,
-		_onRenderError,
-	};
+		test && {
+			resolveId,
+			load,
+			_setFs,
+		}
+	);
 };
 
 module.exports = svelteHmr;
