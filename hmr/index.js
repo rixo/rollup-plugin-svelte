@@ -31,25 +31,14 @@ const svelteHmr = (options = {}) => {
 		fs = _fs;
 	};
 
-	const resolveId = (target, from) => {
-		const alias = aliases[target];
+	const resolveId = source => {
+		const alias = aliases[source];
 		if (alias) {
 			return alias;
 		}
 		if (patchSapperDevClient) {
-			if (/\/sapper-dev-client.js$/.test(target)) {
+			if (/\/sapper-dev-client.js$/.test(source)) {
 				return path.join(__dirname, 'sapper-dev-client.js');
-			}
-		}
-		if (fs) {
-			const base = from ? path.dirname(from) : process.cwd();
-			const name = path.join(base, target);
-			const extensions = ['.js', '.svelte'];
-			for (const ext of extensions) {
-				const filename = name + ext;
-				if (fs.existsSync(filename) && fs.lstatSync(filename).isFile()) {
-					return filename;
-				}
 			}
 		}
 	};
