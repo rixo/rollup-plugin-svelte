@@ -1,15 +1,20 @@
 const path = require('path');
 const { createMakeHot } = require('svelte-hmr');
+const { appendCompatNollup } = require('rollup-plugin-hot');
 
 const hotApiAlias = 'rollup-plugin-svelte-hmr/_/hot-api';
 
-const svelteHmr = (options = {}) => {
+const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
+	const name = 'svelte (hot)';
+
+	const { include, exclude } = pluginOptions;
+
 	const {
 		hot = true,
-		nollup = false,
+		compatNollup = !!process.env.NOLLUP,
 		patchSapperDevClient = false,
-		test = false,
-	} = options;
+		test = process.env.NODE_ENV === 'test',
+	} = hotOptions;
 
 	const hotApi = path.join(__dirname, 'runtime.js');
 	const makeHot = createMakeHot(hotApi);
@@ -20,9 +25,7 @@ const svelteHmr = (options = {}) => {
 
 	function _transform(code, id, compiled) {
 		if (!hot) return code;
-
-		const transformed = makeHot(id, code, options, compiled);
-
+		const transformed = makeHot(id, code, hotOptions, compiled);
 		return transformed;
 	}
 
@@ -53,24 +56,6 @@ const svelteHmr = (options = {}) => {
 		});
 	}
 
-	// We need to pass _after_ Nollup's HMR plugin, that registers itself last.
-	const nollupBundleInit = () => `
-    const init = () => {
-      if (typeof window === 'undefined') return
-      if (!window.__hot) return
-      if (!window.__hot.addErrorHandler) return
-      window.__hot.addErrorHandler(
-        err => {
-          const adapter = window.__SVELTE_HMR_ADAPTER
-          if (adapter && adapter.renderCompileError) {
-            adapter.renderCompileError(err)
-          }
-        }
-      )
-    }
-    setTimeout(init)
-  `;
-
 	const listeners = {
 		generateBundle: [],
 		renderError: [],
@@ -91,23 +76,18 @@ const svelteHmr = (options = {}) => {
 
 	const _onRenderError = addListener('renderError');
 
-	return Object.assign(
+	const hooks = Object.assign(
 		{
-			name: 'svelte-hmr',
+			name,
 			generateBundle,
 			renderError,
 			transform(code, id) {
 				return _transform.call(this, code, id);
 			},
-			// used by rollup-plugin-svelte-hot (i.e. that's here, now!)
-			_transform,
 		},
-		nollup && Object.assign({
-			nollupBundleInit,
-		}, test && {
-			_onBundleGenerated,
-			_onRenderError,
-		}),
+		compatNollup && {
+			options: appendCompatNollup(name, { include, exclude })
+		},
 		patchSapperDevClient && {
 			resolveId,
 		},
@@ -116,8 +96,17 @@ const svelteHmr = (options = {}) => {
 			resolveId,
 			load,
 			_setFs,
+			// nollup
+			_onBundleGenerated,
+			_onRenderError,
 		}
 	);
+
+	return {
+		hooks,
+		// used by rollup-plugin-svelte-hot (i.e. that's here, now!)
+		_transform,
+	};
 };
 
 module.exports = svelteHmr;

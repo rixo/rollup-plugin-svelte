@@ -371,10 +371,12 @@ module.exports = function svelte(options = {}) {
 	};
 
 	if (hotPlugin) {
-		return Object.assign({}, hotPlugin, plugin, {
-			resolveId: first(hotPlugin.resolveId, plugin.resolveId),
-			load: first(hotPlugin.load, plugin.load),
-			generateBundle: after(plugin.generateBundle, hotPlugin.generateBundle),
+		const { hooks } = hotPlugin;
+		return Object.assign({}, hooks, plugin, {
+			name: hooks.name,
+			resolveId: first(hooks.resolveId, plugin.resolveId),
+			load: first(hooks.load, plugin.load),
+			generateBundle: after(plugin.generateBundle, hooks.generateBundle),
 			// transform is called from here
 		});
 	}
