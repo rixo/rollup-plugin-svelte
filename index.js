@@ -138,7 +138,9 @@ const after = (a, b) => function(...args) {
 };
 
 module.exports = function svelte(options = {}) {
-	const filter = createFilter(options.include, options.exclude);
+	const { include, exclude, dev } = options;
+
+	const filter = createFilter(include, exclude);
 
 	const extensions = options.extensions || ['.html', '.svelte'];
 
@@ -321,6 +323,17 @@ module.exports = function svelte(options = {}) {
 					return Object.assign({}, compiled.js, {
 						code: hotPlugin._transform.call(this, compiled.js.code, id, compiled),
 					});
+				} else if (dev) {
+					// emulate $compile proposal (exposing compile result on components in dev mode)
+					// see (discussion): https://github.com/sveltejs/svelte/pull/3917
+					const compileData = JSON.stringify(
+						compiled ? { vars: compiled.vars } : null
+					);
+					const replacement = [
+						'$1',
+						`$2.$compile = ${compileData};`,
+					].join('\n');
+					compiled.js.code = compiled.js.code.replace(/(export default ([^;]*);)/, replacement);
 				}
 
 				return compiled.js;
