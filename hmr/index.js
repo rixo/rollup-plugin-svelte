@@ -48,6 +48,7 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 
 	function load(id) {
 		if (!fs) return null;
+		if (id.substr(0, 1) === '\0') return null;
 		return new Promise((resolve, reject) => {
 			fs.readFile(id, 'utf8', (err, contents) => {
 				if (err) reject(err);
