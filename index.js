@@ -332,6 +332,7 @@ module.exports = function svelte(options = {}) {
 					const replacement = [
 						'$1',
 						`$2.$compile = ${compileData};`,
+						'',
 					].join('\n');
 					compiled.js.code = compiled.js.code.replace(/(export default ([^;]*);)/, replacement);
 				}
