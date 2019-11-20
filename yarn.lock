@@ -1614,9 +1614,9 @@ rimraf@^2.5.2, rimraf@^2.6.1:
   dependencies:
     glob "^7.1.3"
 
-rollup-plugin-hot@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-hot/-/rollup-plugin-hot-0.0.5.tgz#1f078b2714be5910acc40325dce0538ff37e61c1"
+rollup-plugin-hot@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-hot/-/rollup-plugin-hot-0.0.6.tgz#50601aca061d0905e44b226bfd834235a52c44ba"
   dependencies:
     cors "^2.8.5"
     express "^4.17.1"
