@@ -87,7 +87,7 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 			},
 		},
 		compatNollup && {
-			options: appendCompatNollup(name, { include, exclude })
+			options: appendCompatNollup(name, { include, exclude }),
 		},
 		patchSapperDevClient && {
 			resolveId,
