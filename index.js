@@ -178,7 +178,10 @@ module.exports = function svelte(options = {}) {
 	}
 
 	// hot
-	const hotPluginOptions = Object.assign({ hot: true }, options.hot);
+	const hotPluginOptions = Object.assign(
+		{ hot: true, noPreserveStateKey: '@!hmr' },
+		options.hot
+	);
 	const hotPlugin = options.hot && svelteHmr(hotPluginOptions);
 
 	const plugin = {
@@ -321,7 +324,7 @@ module.exports = function svelte(options = {}) {
 
 				if (hotPlugin) {
 					return Object.assign({}, compiled.js, {
-						code: hotPlugin._transform.call(this, compiled.js.code, id, compiled),
+						code: hotPlugin._transform.call(this, compiled.js.code, id, compiled, code),
 					});
 				} else if (dev) {
 					// emulate $compile proposal (exposing compile result on components in dev mode)

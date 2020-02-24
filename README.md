@@ -2,7 +2,7 @@
 
 This is a fork of official [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte) with added support for HMR.
 
-It supports HMR both with [Nollup](https://github.com/PepsRyuu/nollup), or [Rollup](https://github.com/rollup/rollup) with (also experimental) [rollup-plugin-hot](https://github.com/rixo/rollup-plugin-hot).
+It supports HMR both with [Nollup](https://github.com/PepsRyuu/nollup), or [Rollup](https://github.com/rollup/rollup) with (experimental) [rollup-plugin-hot](https://github.com/rixo/rollup-plugin-hot).
 
 HMR is not officially supported by Svelte 3 yet. Progress can be tracked in [this issue](https://github.com/sveltejs/svelte/issues/3632).
 
@@ -11,6 +11,8 @@ Meanwhile, please report your issues regarding HMR (with Rollup / Nollup) in thi
 **:warning: Experimental :warning:**
 
 This HMR implementation relies on Svelte's private & non documented API. This means that it can stop working with any new version of Svelte.
+
+**Update 2020-02-24** We're [making progress](https://github.com/sveltejs/svelte/pull/3822) :)
 
 ## Templates
 

@@ -23,9 +23,9 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 		[hotApiAlias]: hotApi,
 	};
 
-	function _transform(code, id, compiled) {
+	function _transform(code, id, compiled, originalCode) {
 		if (!hot) return code;
-		const transformed = makeHot(id, code, hotOptions, compiled);
+		const transformed = makeHot(id, code, hotOptions, compiled, originalCode);
 		return transformed;
 	}
 
