@@ -18,9 +18,9 @@
   "repository": "git@github.com:rixo/rollup-plugin-svelte.git",
   "keywords": [
     "svelte",
-    "nollup",
     "hot",
     "hmr",
+    "nollup",
     "rollup"
   ],
   "author": "Rich Harris",
