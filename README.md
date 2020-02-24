@@ -1,6 +1,6 @@
 # rollup-plugin-svelte-hot
 
-This is a fork of official [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte) with added support for HMR.
+This is a fork of official [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte) with added HMR support.
 
 It supports HMR both with [Nollup](https://github.com/PepsRyuu/nollup), or [Rollup](https://github.com/rollup/rollup) with (experimental) [rollup-plugin-hot](https://github.com/rixo/rollup-plugin-hot).
 
@@ -51,24 +51,32 @@ export default {
     svelte({
       // Use `hot: true` to use default options (as follow).
       //
-      // Set `hot: false` to disable HMR shenanigans (you need this for
-      // `npm run build`, for example).
+      // Set `hot: false` to completely disable HMR shenanigans (you need this
+      // for `npm run build`, for example).
       //
       hot: hot && {
-        // Set true to enable support for Nollup
-        nollup: false,
         // Prevent preserving local component state
         noPreserveState: false,
+
+        // If this string appears anywhere in your component's code, then local
+        // state won't be preserved, even when noPreserveState is false
+        noPreserveStateKey: '@!hmr',
+
         // Prevent doing a full reload on next HMR update after fatal error
         noReload: false,
+
         // Try to recover after runtime errors in component init
         optimistic: false
+
+        // Set true to enable support for Nollup (note: when not specified, this
+        // is automatically detected based on the NOLLUP env variable)
+        nollup: false,
       },
 
       // `dev: true` is required with HMR
       dev: hot,
 
-      // Separate CSS file is not supported during hMR (neither with Nollup
+      // Separate CSS file is not supported during HMR (neither with Nollup
       // nor rollup-plugin-hot), so we just disable it when `hot` is true.
       ...(!hot && {
         css: css => {
