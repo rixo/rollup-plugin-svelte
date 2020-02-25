@@ -103,11 +103,7 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 		}
 	);
 
-	return {
-		hooks,
-		// used by rollup-plugin-svelte-hot (i.e. that's here, now!)
-		_transform,
-	};
+	return { hooks, _transform };
 };
 
 module.exports = svelteHmr;
