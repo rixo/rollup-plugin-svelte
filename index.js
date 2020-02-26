@@ -178,10 +178,7 @@ module.exports = function svelte(options = {}) {
 	}
 
 	// hot
-	const hotPluginOptions = Object.assign(
-		{ hot: true, noPreserveStateKey: '@!hmr' },
-		options.hot
-	);
+	const hotPluginOptions = Object.assign({ hot: true }, options.hot);
 	const hotPlugin = options.hot && svelteHmr(hotPluginOptions);
 
 	const plugin = {
@@ -283,14 +280,13 @@ module.exports = function svelte(options = {}) {
 					}
 					: {};
 
-				const compiled = compile(
-					code,
-					Object.assign(base_options, fixed_options, {
-						filename: id
-					}, major_version >= 3 ? null : {
-						name: capitalize(sanitize(id))
-					})
-				);
+				const compile_options = Object.assign(base_options, fixed_options, {
+					filename: id
+				}, major_version >= 3 ? null : {
+					name: capitalize(sanitize(id))
+				});
+
+				const compiled = compile(code, compile_options);
 
 				if (major_version >= 3) warnings = compiled.warnings || compiled.stats.warnings;
 
@@ -325,7 +321,7 @@ module.exports = function svelte(options = {}) {
 
 				if (hotPlugin) {
 					return Object.assign({}, compiled.js, {
-						code: hotPlugin._transform.call(this, compiled.js.code, id, compiled, code),
+						code: hotPlugin._transform.call(this, compiled.js.code, id, compiled, code, compile_options),
 					});
 				} else if (dev) {
 					// emulate $compile proposal (exposing compile result on components in dev mode)

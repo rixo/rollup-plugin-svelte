@@ -2,6 +2,8 @@ const path = require('path');
 const { createMakeHot } = require('svelte-hmr');
 const { appendCompatNollup } = require('rollup-plugin-hot');
 
+const { walk } = require('../resolve-svelte');
+
 const hotApiAlias = 'rollup-plugin-svelte-hmr/_/hot-api';
 
 const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
@@ -17,15 +19,22 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 	} = hotOptions;
 
 	const hotApi = path.join(__dirname, 'runtime.js');
-	const makeHot = createMakeHot(hotApi);
+	const makeHot = createMakeHot(hotApi, { walk });
 
 	const aliases = {
 		[hotApiAlias]: hotApi,
 	};
 
-	function _transform(code, id, compiled, originalCode) {
+	function _transform(code, id, compiled, originalCode, compileOptions) {
 		if (!hot) return code;
-		const transformed = makeHot(id, code, hotOptions, compiled, originalCode);
+		const transformed = makeHot(
+			id,
+			code,
+			hotOptions,
+			compiled,
+			originalCode,
+			compileOptions
+		);
 		return transformed;
 	}
 

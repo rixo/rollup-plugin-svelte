@@ -46,7 +46,7 @@ const { version } = require(sveltePkg);
 
 const major_version = +version[0];
 
-const { compile, preprocess } =
+const { compile, preprocess, walk } =
 	major_version >= 3 ? require(`${svelteDir}/compiler`) : require(`${svelteDir}`);
 
 const parentDir = path.dirname(svelteDir);
@@ -73,5 +73,6 @@ module.exports = {
 	major_version,
 	compile,
 	preprocess,
+	walk,
 	resolveSvelteId,
 };
