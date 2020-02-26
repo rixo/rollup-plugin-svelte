@@ -68,6 +68,24 @@ export default {
         // Try to recover after runtime errors in component init
         optimistic: false
 
+        // --- Advanced ---
+
+        // By default, components compiled with accessors or that have named
+        // exports (i.e. exports from <script context="module">) don't have HMR
+        // accept handlers registered. This means that, when those components
+        // change, the update will bubble to all their consumers (i.e. modules
+        // that import them). Without this, changes to named exports / publicly
+        // accessible props wouldn't be reflected in parent modules. These two
+        // options allow to force accept handlers for those modules.
+        //
+        // Note, in particular, that if you set the `accessors` compile option
+        // globally, you'll have to set `acceptAccessors` to true, otherwise no
+        // component will ever be updated through HMR -- instead the updates
+        // would all bubble all the way up to the root non Svelte JS file...
+        // 
+        acceptAccessors: false,
+        acceptNamedExports: false,
+
         // Set true to enable support for Nollup (note: when not specified, this
         // is automatically detected based on the NOLLUP env variable)
         nollup: false,
