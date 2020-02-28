@@ -50,6 +50,6 @@
   },
   "peerDependencies": {
     "rollup": ">=0.60.0",
-    "svelte": ">=3.6.0"
+    "svelte": ">=3.19.0"
   }
 }
