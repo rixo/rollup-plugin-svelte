@@ -70,7 +70,7 @@ export default {
 
         // --- Advanced ---
 
-        // Prevent adding an HMR accept handler to components with 
+        // Prevent adding an HMR accept handler to components with
         // accessors option to true, or to components with named exports
         // (from <script context="module">). This have the effect of
         // recreating the consumer of those components, instead of the
