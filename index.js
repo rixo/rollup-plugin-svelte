@@ -388,7 +388,7 @@ module.exports = function svelte(options = {}) {
 		const { hooks } = hotPlugin;
 		return Object.assign({}, hooks, plugin, {
 			name: hooks.name,
-			resolveId: first(hooks.resolveId, plugin.resolveId),
+			resolve: first(hooks.resolve, plugin.resolve),
 			load: first(hooks.load, plugin.load),
 			generateBundle: after(plugin.generateBundle, hooks.generateBundle),
 			// transform is called from here
