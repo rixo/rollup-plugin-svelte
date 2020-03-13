@@ -43,7 +43,7 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 		fs = _fs;
 	};
 
-	const resolveId = source => {
+	const resolve = source => {
 		const alias = aliases[source];
 		if (alias) {
 			return alias;
@@ -99,11 +99,11 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 			options: appendCompatNollup(name, { include, exclude }),
 		},
 		patchSapperDevClient && {
-			resolveId,
+			resolve,
 		},
 		// used by test driver
 		test && {
-			resolveId,
+			resolve,
 			load,
 			_setFs,
 			// nollup

@@ -189,7 +189,7 @@ module.exports = function svelte(options = {}) {
 			return cssLookup.get(id);
 		},
 
-		resolveId(importee, importer) {
+		resolve(importee, importer) {
 			if (cssLookup.has(importee)) { return importee; }
 
 			// force resolution of svelte imports to the same location as the one used
