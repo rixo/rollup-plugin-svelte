@@ -181,6 +181,16 @@ module.exports = function svelte(options = {}) {
 	const hotPluginOptions = Object.assign({ hot: true }, options.hot);
 	const hotPlugin = options.hot && svelteHmr(hotPluginOptions);
 
+	if (hotPlugin && !hotPluginOptions.noDisableCss) {
+		if (fixed_options.css !== true) {
+			// eslint-disable-next-line no-console
+			console.log(
+				'[Svelte HMR] Setting css option to false (set hot.noDisableCss to true to bypass)'
+			);
+			fixed_options.css = true;
+		}
+	}
+
 	const plugin = {
 		name: 'svelte',
 
@@ -388,6 +398,7 @@ module.exports = function svelte(options = {}) {
 		const { hooks } = hotPlugin;
 		return Object.assign({}, hooks, plugin, {
 			name: hooks.name,
+			options: hooks.options,
 			resolve: first(hooks.resolve, plugin.resolve),
 			load: first(hooks.load, plugin.load),
 			generateBundle: after(plugin.generateBundle, hooks.generateBundle),

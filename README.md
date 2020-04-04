@@ -70,6 +70,13 @@ export default {
 
         // --- Advanced ---
 
+        // By default, when the hot option is enabled, the `css` option of this
+        // plugin (same option as official plugin) will be changed to `false`,
+        // because extracting CSS doesn't work with HMR currently. You can use
+        // this option to disable this behaviour if it cause problems with your
+        // setup.
+        noDisableCss: true,
+
         // Prevent adding an HMR accept handler to components with
         // accessors option to true, or to components with named exports
         // (from <script context="module">). This have the effect of
