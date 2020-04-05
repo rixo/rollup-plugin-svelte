@@ -12,7 +12,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "echo TODO # was: mocha",
+    "test": "mocha",
     "lint": "eslint index.js",
     "prepublishOnly": "npm run lint && npm test"
   },
