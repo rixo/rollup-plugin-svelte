@@ -1,5 +1,13 @@
 # rollup-plugin-svelte-hot changelog
 
+## 0.5.0
+
+* Remove previously added CSS stylesheet on hot update.
+
+* Set `css` option to false when `hot` option is enabled (breaking change).
+
+* Add `noDisableCss` option to prevent this behaviour.
+
 ## 0.2.0
 
 * Drop HMR support for Svelte < 3.19
