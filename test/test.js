@@ -10,33 +10,33 @@ const plugin = require('..');
 
 describe('rollup-plugin-svelte', () => {
 	it('resolves using pkg.svelte', () => {
-		const { resolve } = plugin();
+		const { resolveId } = plugin();
 		assert.equal(
-			resolve('widget', path.resolve('test/foo/main.js')),
+			resolveId('widget', path.resolve('test/foo/main.js')),
 			path.resolve('test/node_modules/widget/src/Widget.html')
 		);
 	});
 
 	it('resolves using pkg.svelte.root', () => {
-		const { resolve } = plugin();
+		const { resolveId } = plugin();
 		assert.equal(
-			resolve('widgets/Foo.html', path.resolve('test/foo/main.js')),
+			resolveId('widgets/Foo.html', path.resolve('test/foo/main.js')),
 			path.resolve('test/node_modules/widgets/src/Foo.html')
 		);
 	});
 
 	it('ignores built-in modules', () => {
-		const { resolve } = plugin();
+		const { resolveId } = plugin();
 		assert.equal(
-			resolve('path', path.resolve('test/foo/main.js')),
+			resolveId('path', path.resolve('test/foo/main.js')),
 			null
 		);
 	});
 
 	it('ignores virtual modules', () => {
-		const { resolve } = plugin();
+		const { resolveId } = plugin();
 		assert.equal(
-			resolve('path', path.resolve('\0some-plugin-generated-module')),
+			resolveId('path', path.resolve('\0some-plugin-generated-module')),
 			null
 		);
 	});

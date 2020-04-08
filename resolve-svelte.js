@@ -61,7 +61,7 @@ function resolveSvelteId (importee, importer) {
 		const target = path.resolve(parentDir, importee);
 		// resolveId is deprecated in Rollup
 		// resolve is not implemented in Nollup (but still present)
-		return this.resolveId
+		return this.resolveId && process.env.NOLLUP
 			? this.resolveId(target, importer)
 			: this.resolve(target, importer, { skipSelf: true });
 	}
