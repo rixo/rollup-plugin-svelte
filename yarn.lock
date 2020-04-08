@@ -30,14 +30,6 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
 
-"@types/estree@0.0.39":
-  version "0.0.39"
-  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
-
-"@types/node@*":
-  version "13.11.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.11.0.tgz#390ea202539c61c8fa6ba4428b57e05bc36dc47b"
-
 accepts@~1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz#531bc726517a3b2b41f850021c6cc15eaab507cd"
@@ -861,7 +853,7 @@ fsevents@^1.2.7:
     bindings "^1.5.0"
     nan "^2.12.1"
 
-fsevents@~2.1.1:
+fsevents@~2.1.1, fsevents@~2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.1.2.tgz#4c0a1fb34bc68e543b4b82a9ec392bfbda840805"
 
@@ -1778,12 +1770,11 @@ rollup-pluginutils@^2.8.2:
   dependencies:
     estree-walker "^0.6.1"
 
-rollup@^0.67.4:
-  version "0.67.4"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.67.4.tgz#8ed6b0993337f84ec8a0387f824fa6c197e833ec"
-  dependencies:
-    "@types/estree" "0.0.39"
-    "@types/node" "*"
+rollup@^2.3.4:
+  version "2.3.4"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.3.4.tgz#979e461f8cab1a71aec2d37ce2a434052ae70223"
+  optionalDependencies:
+    fsevents "~2.1.2"
 
 run-async@^2.4.0:
   version "2.4.0"
@@ -2070,9 +2061,9 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-svelte-hmr@^0.6.0-0:
-  version "0.6.0-0"
-  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.6.0-0.tgz#9fab12b17093427642a3bc593bd6f473af8fedac"
+svelte-hmr@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.6.0.tgz#649fdbdae874a60ab9d71637c74557758f679345"
 
 svelte@^3.0.0-beta.5:
   version "3.20.1"
