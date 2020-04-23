@@ -189,6 +189,17 @@ module.exports = function svelte(options = {}) {
 			);
 			fixed_options.css = true;
 		}
+
+		if (typeof options.css === 'function') {
+			// blank out existing bundle.css
+			options.css({
+				write: dest => {
+					hotPluginOptions.stripCss = dest;
+					fs.writeFileSync(dest, '', 'utf8');
+				}
+			});
+			css = null;
+		}
 	}
 
 	const plugin = {
