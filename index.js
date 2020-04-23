@@ -194,8 +194,10 @@ module.exports = function svelte(options = {}) {
 			// blank out existing bundle.css
 			options.css({
 				write: dest => {
-					hotPluginOptions.stripCss = dest;
-					fs.writeFileSync(dest, '', 'utf8');
+					dest = path.resolve(dest);
+					mkdirp(path.dirname(dest));
+					const contents = '/* this file is blanked out when running in hot mode */';
+					fs.writeFileSync(dest, contents, 'utf8');
 				}
 			});
 			css = null;
