@@ -77,6 +77,15 @@ export default {
         // setup.
         noDisableCss: true,
 
+        // When you change only the <style> part of a component, then only the
+        // CSS will be reinjected. Existing component instances won't be
+        // recreated. Set `false` to force recreation.
+        injectCss: true,
+
+        // Delay to mitigate FOUC (flash of unstyled content) when a component
+        // is updated, before the new version with the new CSS is loaded.
+        cssEjectDelay: 100,
+
         // Prevent adding an HMR accept handler to components with
         // accessors option to true, or to components with named exports
         // (from <script context="module">). This have the effect of

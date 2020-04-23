@@ -2061,9 +2061,9 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-svelte-hmr@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.6.0.tgz#649fdbdae874a60ab9d71637c74557758f679345"
+svelte-hmr@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.7.0.tgz#a287ad8b1bec984fbd08e882e34b297a66c7194e"
 
 svelte@^3.0.0-beta.5:
   version "3.20.1"
