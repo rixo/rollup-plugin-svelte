@@ -18,7 +18,8 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 		test = process.env.NODE_ENV === 'test',
 	} = hotOptions;
 
-	const hotApi = path.join(__dirname, 'runtime.js');
+	// const hotApi = path.join(__dirname, 'runtime.js');
+	const hotApi = 'rollup-plugin-svelte-hot/hmr/runtime.js';
 	const makeHot = createMakeHot(hotApi, { walk });
 
 	const aliases = {
