@@ -59,11 +59,9 @@ function resolveSvelteId (importee, importer) {
 	// paths AFAIK
 	if (importee === 'svelte' || importee.startsWith('svelte/')) {
 		const target = path.resolve(parentDir, importee);
-		// resolveId is deprecated in Rollup
-		// resolve is not implemented in Nollup (but still present)
-		return this.resolveId && process.env.NOLLUP
-			? this.resolveId(target, importer)
-			: this.resolve(target, importer, { skipSelf: true });
+		return this.resolve
+			? this.resolve(target, importer, { skipSelf: true })
+			: this.resolveId(target, importer);
 	}
 	return null;
 }
