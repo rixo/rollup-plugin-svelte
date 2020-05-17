@@ -51,7 +51,8 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 			return alias;
 		}
 		if (patchSapperDevClient) {
-			if (/\/sapper-dev-client.js$/.test(source)) {
+			// .* is because current nollup experimental sapper adds id hashs to names
+			if (/\/sapper-dev-client.*.js$/.test(source)) {
 				return path.join(__dirname, 'sapper-dev-client.js');
 			}
 		}
