@@ -137,6 +137,8 @@ const after = (a, b) => function(...args) {
 		.then(() => result);
 };
 
+const noop = () => {};
+
 module.exports = function svelte(options = {}) {
 	const { include, exclude, dev } = options;
 
@@ -181,6 +183,8 @@ module.exports = function svelte(options = {}) {
 	const hotPluginOptions = Object.assign({ hot: true }, options.hot);
 	const hotPlugin = options.hot && svelteHmr(hotPluginOptions);
 
+	let writeCss = noop;
+
 	if (hotPlugin && !hotPluginOptions.noDisableCss) {
 		if (fixed_options.css !== true) {
 			// eslint-disable-next-line no-console
@@ -192,14 +196,16 @@ module.exports = function svelte(options = {}) {
 
 		if (typeof options.css === 'function') {
 			// blank out existing bundle.css
-			options.css({
-				write: dest => {
-					dest = path.resolve(dest);
-					mkdirp(path.dirname(dest));
-					const contents = '/* this file is blanked out when running in hot mode */';
-					fs.writeFileSync(dest, contents, 'utf8');
-				}
-			});
+			writeCss = () => {
+				options.css({
+					write: dest => {
+						dest = path.resolve(dest);
+						mkdirp(path.dirname(dest));
+						const contents = '/* this file is blanked out when running in hot mode */';
+						fs.writeFileSync(dest, contents, 'utf8');
+					}
+				});
+			};
 			css = null;
 		}
 	}
@@ -364,6 +370,11 @@ module.exports = function svelte(options = {}) {
 			});
 		},
 		generateBundle() {
+			if (writeCss) {
+				writeCss();
+				writeCss = noop;
+			}
+
 			if (css) {
 				// write out CSS file. TODO would be nice if there was a
 				// a more idiomatic way to do this in Rollup
