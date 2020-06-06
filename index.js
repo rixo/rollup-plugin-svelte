@@ -180,12 +180,11 @@ module.exports = function svelte(options = {}) {
 	}
 
 	// hot
-	const hotPluginOptions = Object.assign({ hot: true }, options.hot);
-	const hotPlugin = options.hot && svelteHmr(hotPluginOptions);
+	const hotPlugin = options.hot && options.dev && svelteHmr(options.hot);
 
 	let writeCss = noop;
 
-	if (hotPlugin && !hotPluginOptions.noDisableCss) {
+	if (hotPlugin && !options.hot.noDisableCss) {
 		if (fixed_options.css !== true) {
 			// eslint-disable-next-line no-console
 			console.log(

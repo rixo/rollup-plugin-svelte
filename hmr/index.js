@@ -12,11 +12,11 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 	const { include, exclude } = pluginOptions;
 
 	const {
-		hot = true,
+		hot = false,
 		compatNollup = !!process.env.NOLLUP,
 		patchSapperDevClient = false,
 		test = process.env.NODE_ENV === 'test',
-	} = hotOptions;
+	} = hotOptions === true ? { hot: true } : hotOptions;
 
 	// careful with relative paths (see https://github.com/rixo/svelte-hmr/issues/11)
 	const hotApi = path.join(__dirname, 'runtime.js');
