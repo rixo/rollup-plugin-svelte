@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "require-relative": "^0.8.7",
-    "rollup-plugin-hot": "^0.0.27",
+    "rollup-plugin-hot-nollup": "^0.1.0",
     "rollup-pluginutils": "^2.8.2",
     "sourcemap-codec": "^1.4.8",
     "svelte-hmr": "^0.8.0"

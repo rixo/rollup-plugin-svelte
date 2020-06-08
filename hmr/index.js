@@ -1,6 +1,6 @@
 const path = require('path');
 const { createMakeHot } = require('svelte-hmr');
-const { appendCompatNollup } = require('rollup-plugin-hot');
+const { appendCompatNollup } = require('rollup-plugin-hot-nollup');
 
 const { walk } = require('../resolve-svelte');
 
