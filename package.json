@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-svelte-hot",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Compile Svelte components with HMR support for Rollup or Nollup",
   "main": "index.js",
   "types": "index.d.ts",
