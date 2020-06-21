@@ -1,5 +1,9 @@
 # rollup-plugin-svelte-hot changelog
 
+## 0.10.0
+
+* merge `rollup-plugin-svelte@5.2.3`
+
 ## 0.5.0
 
 * Remove previously added CSS stylesheet on hot update.
