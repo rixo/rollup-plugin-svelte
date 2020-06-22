@@ -2062,10 +2062,10 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-svelte-hmr@^0.9.0-1:
-  version "0.9.0-1"
-  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.9.0-1.tgz#15d5cd75332f30d7667000fa2d68c41f186573f9"
-  integrity sha512-FJGu3eL+qs1mffBdwSyAiHjF8gh8+64PXub9AL9+SnF5HOwdL0/IrGarhk6H4UYnQZC8QWhYWHXxGq3Zo1fE0Q==
+svelte-hmr@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.9.0.tgz#5e48b601b000b5b0767de0196068a547fcd99809"
+  integrity sha512-spsA604P1/DIiFRyaR4H4hYMx8RFHNkyYN9ogqdu38bJGO/ezLwH/dqnE7E7PHDzDOTFyccvpa+oVUICKXHqTA==
 
 svelte@^3.0.0-beta.5:
   version "3.20.1"
