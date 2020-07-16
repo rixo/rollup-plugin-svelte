@@ -45,7 +45,7 @@
     "rollup-plugin-hot-nollup": "^0.1.0",
     "rollup-pluginutils": "^2.8.2",
     "sourcemap-codec": "^1.4.8",
-    "svelte-hmr": "^0.10.0"
+    "svelte-hmr": "^0.10.1"
   },
   "optionalDependencies": {
     "nollup": ">=0.8.4"
