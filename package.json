@@ -13,8 +13,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "mocha",
     "lint": "eslint index.js",
+    "test": "node test/index.js",
     "prepublishOnly": "npm run lint && npm test"
   },
   "repository": "git@github.com:rixo/rollup-plugin-svelte.git",
@@ -34,11 +34,11 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "locate-character": "^2.0.5",
-    "mocha": "^7.1.1",
     "rollup": "^2.3.4",
     "sander": "^0.6.0",
     "source-map": "^0.7.3",
-    "svelte": "^3.0.0-beta.5"
+    "svelte": "^3.24.0",
+    "uvu": "^0.3.1"
   },
   "dependencies": {
     "require-relative": "^0.8.7",
@@ -51,7 +51,7 @@
     "nollup": ">=0.8.4"
   },
   "peerDependencies": {
-    "rollup": ">=0.60.0",
+    "rollup": ">=1.19.2",
     "svelte": ">=3.19.0"
   }
 }

@@ -1,5 +1,13 @@
 # rollup-plugin-svelte-hot changelog
 
+## 0.11.0 (merge 6.0.0)
+
+* merge `rollup-plugin-svelte@6.0.0`
+
+* Breaking changes:
+	* Rollup 1.19.2+ is now required
+	* The path passed to `css.write()` is now relative to the destination directory.
+
 ## 0.10.0
 
 * merge `rollup-plugin-svelte@5.2.3`

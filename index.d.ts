@@ -1,14 +1,14 @@
 import { Plugin, RollupWarning } from 'rollup';
-
-interface PreprocessOptions extends Record<string, (...args: any[]) => void> {}
+import { PreprocessorGroup } from 'svelte/types/compiler/preprocess';
 
 interface Css {
   code: any;
   map: any;
 }
 
-class CssWriter {
+declare class CssWriter {
   code: string;
+  filename: string;
   map: {
     version: number;
     file?: boolean;
@@ -18,6 +18,7 @@ class CssWriter {
     mappings: string;
   };
   warn: RollupWarning;
+  emit(fileName: string, source: string): void;
   write(dest: string, map: boolean): void;
   toString(): string;
 }
@@ -48,14 +49,13 @@ interface Options {
    * By default, the client-side compiler is used. You
    * can also use the server-side rendering compiler
    */
-  // this isn't used yet in plugin
-  // generate?: 'ssr';
+  generate?: 'dom' | 'ssr' | false;
 
   /**
    * Optionally, preprocess components with svelte.preprocess:
    * https://svelte.dev/docs#svelte_preprocess
    */
-  preprocess?: PreprocessOptions;
+  preprocess?: PreprocessorGroup | PreprocessorGroup[];
   // {
   //   style: ({ content }) => {
   //     return transformStyles(content);
@@ -72,6 +72,13 @@ interface Options {
    * Extract CSS into a separate file (recommended).
    */
   css?: (css: CssWriter) => any;
+
+
+  /**
+   * Compile Svelte components to custom elements (aka web components).
+   * @default false
+   */
+  customElement?: boolean;
 
   /**
    * let Rollup handle all other warnings normally
