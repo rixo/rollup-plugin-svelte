@@ -44,7 +44,7 @@ const svelteDir = path.dirname(sveltePkg);
 
 const { version } = require(sveltePkg);
 
-const major_version = +version[0];
+const major_version = +String(version.split('.'))[0];
 
 const { compile, preprocess, walk } =
 	major_version >= 3 ? require(`${svelteDir}/compiler`) : require(`${svelteDir}`);
