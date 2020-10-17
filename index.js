@@ -101,10 +101,10 @@ class CssWriter {
 		};
 	}
 
-	write(dest = this.filename, map) {
+	write(dest = this.filename, map = true) {
 		const basename = path.basename(dest);
 
-		if (map !== false) {
+		if (map) {
 			this.emit(dest, `${this.code}\n/*# sourceMappingURL=${basename}.map */`);
 			this.emit(`${dest}.map`, JSON.stringify({
 				version: 3,
@@ -125,7 +125,7 @@ class CssWriter {
 	}
 }
 
-const first = (a, b) => function(...args) {
+const first = (a, b) => function (...args) {
 	if (!a) return b.apply(this, args);
 	if (!b) return a.apply(this, args);
 	const resultA = a.apply(this, args);
@@ -135,19 +135,17 @@ const first = (a, b) => function(...args) {
 	return resultA == null ? b.apply(this, args) : resultA;
 };
 
-const after = (a, b) => function(...args) {
+const after = (a, b) => function (...args) {
 	const result = a.apply(this, args);
 	return Promise.resolve()
 		.then(() => b && b.apply(this, args))
 		.then(() => result);
 };
 
-const noop = () => {};
+const noop = () => { };
 
 module.exports = function svelte(options = {}) {
-	const { include, exclude, dev } = options;
-
-	const filter = createFilter(include, exclude);
+	const filter = createFilter(options.include, options.exclude);
 
 	const extensions = options.extensions || ['.html', '.svelte'];
 
@@ -178,6 +176,9 @@ module.exports = function svelte(options = {}) {
 		? options.css
 		: null;
 
+	// A map from css filename to css contents
+	// If css: true we output all contents
+	// If emitCss: true we virtually resolve these imports
 	const cssLookup = new Map();
 
 	if (css || options.emitCss) {
@@ -217,11 +218,17 @@ module.exports = function svelte(options = {}) {
 	const plugin = {
 		name: 'svelte',
 
+		/**
+		 * Returns CSS contents for an id
+		 */
 		load(id) {
 			if (!cssLookup.has(id)) return null;
 			return cssLookup.get(id);
 		},
 
+		/**
+		 * Returns id for import
+		 */
 		resolveId(importee, importer) {
 			if (cssLookup.has(importee)) { return importee; }
 
@@ -262,6 +269,10 @@ module.exports = function svelte(options = {}) {
 			}
 		},
 
+		/**
+		 * Transforms a .svelte file into a .js file
+		 * Adds a static import for virtual css file when emitCss: true
+		 */
 		transform(code, id) {
 			if (!filter(id)) return null;
 
@@ -324,7 +335,7 @@ module.exports = function svelte(options = {}) {
 				if (major_version >= 3) warnings = compiled.warnings || compiled.stats.warnings;
 
 				warnings.forEach(warning => {
-					if ((options.css || !options.emitCss) && warning.code === 'css-unused-selector') return;
+					if ((!options.css && !options.emitCss) && warning.code === 'css-unused-selector') return;
 
 					if (options.onwarn) {
 						options.onwarn(warning, warning => this.warn(warning));
@@ -356,7 +367,7 @@ module.exports = function svelte(options = {}) {
 					return Object.assign({}, compiled.js, {
 						code: hotPlugin._transform.call(this, compiled.js.code, id, compiled, code, compile_options),
 					});
-				} else if (dev) {
+				} else if (options.dev) {
 					// emulate $compile proposal (exposing compile result on components in dev mode)
 					// see (discussion): https://github.com/sveltejs/svelte/pull/3917
 					const compileData = JSON.stringify(
@@ -373,6 +384,9 @@ module.exports = function svelte(options = {}) {
 				return compiled.js;
 			});
 		},
+		/**
+		 * If css: true then outputs a single file with all CSS bundled together
+		 */
 		generateBundle(options, bundle) {
 			if (writeCss) {
 				writeCss();
@@ -380,8 +394,7 @@ module.exports = function svelte(options = {}) {
 			}
 
 			if (css) {
-				// write out CSS file. TODO would be nice if there was a
-				// a more idiomatic way to do this in Rollup
+				// TODO would be nice if there was a more idiomatic way to do this in Rollup
 				let result = '';
 
 				const mappings = [];
