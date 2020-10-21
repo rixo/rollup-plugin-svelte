@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-svelte-hot",
-  "version": "0.11.0-0",
+  "version": "0.11.0-1",
   "description": "Compile Svelte components with HMR support for Rollup or Nollup",
   "main": "index.js",
   "types": "index.d.ts",
@@ -51,7 +51,7 @@
     "nollup": ">=0.8.4"
   },
   "peerDependencies": {
-    "svelte": ">=3.19.0",
-    "rollup": ">=1.19.2"
+    "rollup": ">=1.19.2",
+    "svelte": ">=3.19.0"
   }
 }
