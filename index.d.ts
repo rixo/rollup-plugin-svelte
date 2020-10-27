@@ -23,6 +23,12 @@ declare class CssWriter {
   toString(): string;
 }
 
+interface Svelte {
+  compile: any;
+  preprocess: any;
+  version: number | string;
+}
+
 type CssEmitter = (css: CssWriter) => any;
 
 interface Options {
@@ -83,6 +89,11 @@ interface Options {
   customElement?: boolean;
 
   /**
+   * Pass in a specific version of Svelte.
+   */
+  svelte?: Svelte;
+
+  /**
    * let Rollup handle all other warnings normally
    */
   onwarn?: (
@@ -106,18 +117,19 @@ interface Options {
      * Prevent doing a full reload on next HMR update after fatal error.
      * @default false
      */
-     noReload: boolean;
-     /**
-      * Try to recover after runtime errors in component init.
-      * @default false
-      */
-     optimistic: boolean;
+    noReload: boolean;
+    /**
+     * Try to recover after runtime errors in component init.
+     * @default false
+     */
+    optimistic: boolean;
 
-     noDisableCss: boolean;
-     injectCss: boolean;
-     cssEjectDelay: number;
+    noDisableCss: boolean;
+    injectCss: boolean;
+    cssEjectDelay: number;
+    cssDevDest?: string;
 
-     nollup: boolean;
+    nollup: boolean;
   }
 }
 

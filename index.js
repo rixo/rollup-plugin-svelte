@@ -6,13 +6,23 @@ const { encode, decode } = require('sourcemap-codec');
 const svelteHmr = require('./hmr');
 
 const {
-	major_version,
-	compile,
-	preprocess,
+	// major_version,
+	// compile,
+	// preprocess,
 	resolveSvelteId,
 } = require('./resolve-svelte');
 
 const pkg_export_errors = new Set();
+
+const to_major = str => Number(str[0]);
+
+function autoload() {
+	const pkg = require('svelte/package.json');
+	const version = to_major(pkg.version);
+
+	const { compile, preprocess } = require(version >= 3 ? 'svelte/compiler.js' : 'svelte');
+	return { compile, preprocess, version };
+}
 
 function sanitize(input) {
 	return path
@@ -62,15 +72,15 @@ function tryResolve(pkg, importer) {
 	}
 }
 
-function exists(file) {
-	try {
-		fs.statSync(file);
-		return true;
-	} catch (err) {
-		if (err.code === 'ENOENT') return false;
-		throw err;
-	}
-}
+// function exists(file) {
+// 	try {
+// 		fs.statSync(file);
+// 		return true;
+// 	} catch (err) {
+// 		if (err.code === 'ENOENT') return false;
+// 		throw err;
+// 	}
+// }
 
 function mkdirp(dir) {
 	const parent = path.dirname(dir);
@@ -144,9 +154,11 @@ const after = (a, b) => function (...args) {
 
 const noop = () => { };
 
-module.exports = function svelte(options = {}) {
-	const filter = createFilter(options.include, options.exclude);
+module.exports = function (options = {}) {
+	let { compile, preprocess, version } = options.svelte || autoload();
+	if (typeof version === 'string') version = to_major(version);
 
+	const filter = createFilter(options.include, options.exclude);
 	const extensions = options.extensions || ['.html', '.svelte'];
 
 	const fixed_options = {};
@@ -157,7 +169,7 @@ module.exports = function svelte(options = {}) {
 		fixed_options[key] = options[key];
 	});
 
-	if (major_version >= 3) {
+	if (version >= 3) {
 		fixed_options.format = 'esm';
 		fixed_options.sveltePath = options.sveltePath || 'svelte';
 	} else {
@@ -204,7 +216,11 @@ module.exports = function svelte(options = {}) {
 			writeCss = () => {
 				options.css({
 					write: dest => {
-						dest = path.resolve(dest);
+						if (options.hot.cssDevDest) {
+							dest = path.resolve(path.join(options.hot.cssDevDest, dest));
+						} else {
+							dest = path.resolve(dest);
+						}
 						mkdirp(path.dirname(dest));
 						const contents = '/* this file is blanked out when running in hot mode */';
 						fs.writeFileSync(dest, contents, 'utf8');
@@ -264,7 +280,7 @@ module.exports = function svelte(options = {}) {
 				if (pkg['svelte.root']) {
 					// TODO remove this. it's weird and unnecessary
 					const sub = path.resolve(dir, pkg['svelte.root'], parts.join('/'));
-					if (exists(sub)) return sub;
+					if (fs.existsSync(sub)) return sub;
 				}
 			}
 		},
@@ -283,7 +299,7 @@ module.exports = function svelte(options = {}) {
 			const dependencies = [];
 			let preprocessPromise;
 			if (options.preprocess) {
-				if (major_version < 3) {
+				if (version < 3) {
 					const preprocessOptions = {};
 					for (const key in options.preprocess) {
 						preprocessOptions[key] = (...args) => {
@@ -318,7 +334,7 @@ module.exports = function svelte(options = {}) {
 			return preprocessPromise.then(code => {
 				let warnings = [];
 
-				const base_options = major_version < 3
+				const base_options = version < 3
 					? {
 						onwarn: warning => warnings.push(warning)
 					}
@@ -326,13 +342,13 @@ module.exports = function svelte(options = {}) {
 
 				const compile_options = Object.assign(base_options, fixed_options, {
 					filename: id
-				}, major_version >= 3 ? null : {
+				}, version >= 3 ? null : {
 					name: capitalize(sanitize(id))
 				});
 
 				const compiled = compile(code, compile_options);
 
-				if (major_version >= 3) warnings = compiled.warnings || compiled.stats.warnings;
+				if (version >= 3) warnings = compiled.warnings || compiled.stats.warnings;
 
 				warnings.forEach(warning => {
 					if ((!options.css && !options.emitCss) && warning.code === 'css-unused-selector') return;
