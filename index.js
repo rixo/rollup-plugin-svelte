@@ -72,19 +72,6 @@ function exists(file) {
 	}
 }
 
-function mkdirp(dir) {
-	const parent = path.dirname(dir);
-	if (parent === dir) return;
-
-	mkdirp(parent);
-
-	try {
-		fs.mkdirSync(dir);
-	} catch (err) {
-		if (err.code !== 'EEXIST') throw err;
-	}
-}
-
 class CssWriter {
 	constructor(code, filename, map, warn, toAsset) {
 		this.code = code;
@@ -142,8 +129,6 @@ const after = (a, b) => function (...args) {
 		.then(() => result);
 };
 
-const noop = () => { };
-
 module.exports = function svelte(options = {}) {
 	const filter = createFilter(options.include, options.exclude);
 
@@ -188,7 +173,7 @@ module.exports = function svelte(options = {}) {
 	// hot
 	const hotPlugin = options.hot && options.dev && svelteHmr(options.hot);
 
-	let writeCss = noop;
+	let writeBlankCss = false;
 
 	if (hotPlugin && !options.hot.noDisableCss) {
 		if (fixed_options.css !== true) {
@@ -201,16 +186,7 @@ module.exports = function svelte(options = {}) {
 
 		if (typeof options.css === 'function') {
 			// blank out existing bundle.css
-			writeCss = () => {
-				options.css({
-					write: dest => {
-						dest = path.resolve(dest);
-						mkdirp(path.dirname(dest));
-						const contents = '/* this file is blanked out when running in hot mode */';
-						fs.writeFileSync(dest, contents, 'utf8');
-					}
-				});
-			};
+			writeBlankCss = options.css;
 			css = null;
 		}
 	}
@@ -388,9 +364,14 @@ module.exports = function svelte(options = {}) {
 		 * If css: true then outputs a single file with all CSS bundled together
 		 */
 		generateBundle(options, bundle) {
-			if (writeCss) {
-				writeCss();
-				writeCss = noop;
+			if (writeBlankCss) {
+				writeBlankCss({
+					write: fileName => {
+						const source = '/* this file is blanked out when running in hot mode */';
+						this.emitFile({ type: 'asset', fileName, source });
+					}
+				});
+				writeBlankCss = null;
 			}
 
 			if (css) {
