@@ -371,7 +371,6 @@ module.exports = function svelte(options = {}) {
 						this.emitFile({ type: 'asset', fileName, source });
 					}
 				});
-				writeBlankCss = null;
 			}
 
 			if (css) {
