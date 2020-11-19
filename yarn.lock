@@ -1738,10 +1738,10 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-svelte-hmr@^0.11.3:
-  version "0.11.3"
-  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.11.3.tgz#fba471b073687d7ef0507c3d19709acd2d7cb1b1"
-  integrity sha512-xH0yC3t58Thun+erD8DMn1SAV6DbiPiOpLKhN7zAACxuFO9sZiKBzgFhCM57F7wX3Pmx8HIbgpQIaDh25kHuqQ==
+svelte-hmr@^0.12.0-0:
+  version "0.12.0-0"
+  resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.12.0-0.tgz#c793cb046ff5ce423b4c9d1979b60f80615e4459"
+  integrity sha512-M7WytvXLIz2QLebtMbn0m0krhlMGjVApa7/vLG87g4HvaTg8THwDRl4I78Wn/4KoriLT1rXH//s0Xozny+1LeA==
 
 svelte@^3.24.0:
   version "3.24.1"
