@@ -66,7 +66,7 @@ export default {
         noReload: false,
 
         // Try to recover after runtime errors in component init
-        optimistic: false
+        optimistic: false,
 
         // --- Advanced ---
 
@@ -116,7 +116,7 @@ export default {
       //
       //   https://github.com/rollup/rollup-plugin-svelte
       //
-      ...
+      // ...
     })
   ]
 }
