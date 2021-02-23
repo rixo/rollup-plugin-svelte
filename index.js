@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const relative = require('require-relative');
 const { createFilter } = require('rollup-pluginutils');
@@ -6,6 +7,17 @@ const { createMakeHot } = require('svelte-hmr');
 
 const PREFIX = '[rollup-plugin-svelte]';
 const pkg_export_errors = new Set();
+
+const splitQuery = url => {
+	const parts = url.split('?');
+	if (parts.length < 2) return [parts[0], ''];
+	const query = parts.pop();
+	return [parts.join('?'), '?' + query];
+};
+
+const trimQuery = url => splitQuery(url)[0];
+
+const readJsonFile = async (file, encoding = 'utf8') => JSON.parse(await fs.promises.readFile(file, encoding));
 
 const plugin_options = new Set([
 	'emitCss',
@@ -49,16 +61,93 @@ module.exports = function (options = {}) {
 		rest.hot = false;
 	}
 
-	const makeHot = rest.hot && createMakeHot({ walk });
+	const makeHot = rest.hot && createMakeHot({
+		walk,
+		// Resolving runtime deps of svelte-hmr to absolute path because it is
+		// a transitive deps to the user's app, and it might not be "visible" with
+		// strict package managers like pnpm.
+		// NOTE Can't use require.resolve here, because this moduled might end up
+		// 		  bundled to ESM in Kit.
+		adapter: relative.resolve('svelte-hmr/runtime/proxy-adapter-dom.js'),
+		hotApi: relative.resolve('svelte-hmr/runtime/hot-api-esm.js'),
+	});
+
+	// --- Vite 2 support ---
+
+	let viteConfig;
+	let isViteDev = !!process.env.ROLLUP_WATCH;
+
+	const isVite = () => !!viteConfig;
+
+	const resolveViteUrl = id => {
+		if (!viteConfig) return id;
+		const { root, base } = viteConfig;
+		if (!id.startsWith(root + '/')) return id;
+		return base + id.substr(root.length + 1);
+	};
+
+	const resolveVitePath = url => {
+		if (!viteConfig) return url;
+		const { root, base } = viteConfig;
+		if (!url.startsWith(base)) return url;
+		return root + '/' + url.substr(base.length);
+	};
+
+	// === Hooks ===
 
 	return {
 		name: 'svelte',
 
+		// --- Vite specific hooks ---
+
+		/**
+		 * Vite specific. Ensure our resolver runs first to resolve svelte field.
+		 */
+		enforce: 'pre',
+
+		/**
+		 * Vite specific hook. Used to determine if we're running Vite in dev mode,
+		 * meaning we need to add cache buster query params to modules for HMR, and
+		 * to customize customize config for Svelte.
+		 */
+		config(config, { mode, command }) {
+			// TODO is this the only case we want to catch?
+			isViteDev = mode === 'development' && command === 'serve';
+			return {
+				// Svelte exports prebundled ESM modules, so it doesn't need to be
+				// optimized. Exluding it might avoid a false starts, where the page
+				// isn't immediately available while optimizing and generates "strict
+				// mime type" errors in the browser (e.g. on very first run, or when
+				// running dev after build sometimes).
+				optimizeDeps: {
+					exclude: ['svelte']
+				},
+			};
+		},
+
+		/**
+		 * Vite specific hook. Vite config is needed to know root directory and
+		 * base URL.
+		 */
+		configResolved(config) {
+			viteConfig = config;
+		},
+
+		// --- Shared Rollup / Vite hooks ---
+
 		/**
 		 * Resolve an import's full filepath.
 		 */
-		resolveId(importee, importer) {
-			if (cache_emit.has(importee)) return importee;
+		async resolveId(importee, importer, options, ssr = false) {
+			if (isVite()) {
+				const [fname, query] = splitQuery(importee);
+				if (cache_emit.has(fname)) {
+					return ssr ? resolveVitePath(fname + query) : importee;
+				}
+			} else {
+				 if (cache_emit.has(importee)) return importee;
+			}
+
 			if (!importer || importee[0] === '.' || importee[0] === '\0' || path.isAbsolute(importee)) return null;
 
 			// if this is a bare import, see if there's a valid pkg.svelte
@@ -73,7 +162,9 @@ module.exports = function (options = {}) {
 				const file = `${name}/package.json`;
 				const resolved = relative.resolve(file, path.dirname(importer));
 				dir = path.dirname(resolved);
-				pkg = require(resolved);
+				// NOTE this can't be a "dynamic" CJS require, because this might end
+				//      up compiled as ESM in Kit
+				pkg = await readJsonFile(resolved);
 			} catch (err) {
 				if (err.code === 'MODULE_NOT_FOUND') return null;
 				if (err.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
@@ -93,14 +184,15 @@ module.exports = function (options = {}) {
 		 * Returns CSS contents for a file, if ours
 		 */
 		load(id) {
-			return cache_emit.get(id) || null;
+			const cacheKey = isVite() ? trimQuery(resolveViteUrl(id)) : id;
+			return cache_emit.get(cacheKey) || null;
 		},
 
 		/**
 		 * Transforms a `.svelte` file into a `.js` file.
 		 * NOTE: If `emitCss`, append static `import` to virtual CSS file.
 		 */
-		async transform(code, id) {
+		async transform(code, id, ssr = false) {
 			if (!filter(id)) return null;
 
 			const extension = path.extname(id);
@@ -109,6 +201,10 @@ module.exports = function (options = {}) {
 			const dependencies = [];
 			const filename = path.relative(process.cwd(), id);
 			const svelte_options = { ...compilerOptions, filename };
+
+			if (ssr) {
+				svelte_options.generate = 'ssr';
+			}
 
 			if (rest.preprocess) {
 				const processed = await preprocess(code, rest.preprocess, { filename });
@@ -126,12 +222,21 @@ module.exports = function (options = {}) {
 			});
 
 			if (emitCss && compiled.css.code) {
-				const fname = id.replace(new RegExp(`\\${extension}$`), '.css');
-				compiled.js.code += `\nimport ${JSON.stringify(fname)};\n`;
+				let fname;
+				if (isVite()) {
+					const url = resolveViteUrl(id);
+					fname = url + '.css';
+					// NOTE don't use `?t=`, it gets stripped by Vite
+					const vname = isViteDev ? fname + '?vt=' + Date.now() : fname;
+					compiled.js.code += `\nimport ${JSON.stringify(vname)};\n`;
+				} else {
+					fname = id.replace(new RegExp(`\\${extension}$`), '.css');
+					compiled.js.code += `\nimport ${JSON.stringify(fname)};\n`;
+				}
 				cache_emit.set(fname, compiled.css);
 			}
 
-			if (makeHot) {
+			if (makeHot && !ssr) {
 				compiled.js.code = makeHot({
 					id,
 					compiledCode: compiled.js.code,

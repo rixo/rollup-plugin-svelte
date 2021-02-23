@@ -8,40 +8,40 @@ const sander = require('sander');
 
 const plugin = require('..');
 
-test('resolves using pkg.svelte', () => {
+test('resolves using pkg.svelte', async () => {
 	const { resolveId } = plugin();
 	assert.is(
-		resolveId('widget', path.resolve('test/foo/main.js')),
+		await resolveId('widget', path.resolve('test/foo/main.js')),
 		path.resolve('test/node_modules/widget/src/Widget.svelte')
 	);
 });
 
-test('ignores built-in modules', () => {
+test('ignores built-in modules', async () => {
 	const { resolveId } = plugin();
 	assert.ok(
-		resolveId('path', path.resolve('test/foo/main.js')) == null
+		await resolveId('path', path.resolve('test/foo/main.js')) == null
 	);
 });
 
-test('ignores esm modules that do not export package.json', () => {
+test('ignores esm modules that do not export package.json', async () => {
 	const { resolveId } = plugin();
 	assert.ok(
-		resolveId('esm-no-pkg-export', path.resolve('test/foo/main.js')) == null
+		await resolveId('esm-no-pkg-export', path.resolve('test/foo/main.js')) == null
 	);
 });
 
-test('resolves esm module that exports package.json', () => {
+test('resolves esm module that exports package.json', async () => {
 	const { resolveId } = plugin();
 	assert.is(
-		resolveId('esm-component', path.resolve('test/foo/main.js')),
+		await resolveId('esm-component', path.resolve('test/foo/main.js')),
 		path.resolve('test/node_modules/esm-component/src/Component.svelte')
 	);
 });
 
-test('ignores virtual modules', () => {
+test('ignores virtual modules', async () => {
 	const { resolveId } = plugin();
 	assert.ok(
-		resolveId('path', path.resolve('\0some-plugin-generated-module')) == null
+		await resolveId('path', path.resolve('\0some-plugin-generated-module')) == null
 	);
 });
 
@@ -144,9 +144,9 @@ test('emits a CSS file', async () => {
 		h1 {
 			color: red;
 		}
-	</style>`, `path/to/Input.svelte`);
+	</style>`, 'path/to/Input.svelte');
 
-	assert.ok(transformed.code.indexOf(`import "path/to/Input.css";`) !== -1);
+	assert.ok(transformed.code.indexOf('import "path/to/Input.css";') !== -1);
 
 	const css = load('path/to/Input.css');
 
@@ -171,11 +171,11 @@ test('properly escapes CSS paths', async () => {
 		h1 {
 			color: red;
 		}
-	</style>`, `path\\t'o\\Input.svelte`);
+	</style>`, 'path\\t\'o\\Input.svelte');
 
-	assert.ok(transformed.code.indexOf(`import "path\\\\t'o\\\\Input.css";`) !== -1);
+	assert.ok(transformed.code.indexOf('import "path\\\\t\'o\\\\Input.css";') !== -1);
 
-	const css = load(`path\\t'o\\Input.css`);
+	const css = load('path\\t\'o\\Input.css');
 
 	const smc = await new SourceMapConsumer(css.map);
 
