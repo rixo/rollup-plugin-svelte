@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const relative = require('require-relative');
-const { createFilter } = require('rollup-pluginutils');
+const { createFilter } = require('@rollup/pluginutils');
 const { compile, preprocess, walk } = require('svelte/compiler');
 const { createMakeHot } = require('svelte-hmr');
 

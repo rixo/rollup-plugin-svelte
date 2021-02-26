@@ -8,6 +8,6 @@ It supports HMR both with [Nollup](https://github.com/PepsRyuu/nollup), or [Roll
 
 A new version of this plugin has been published to close the gap in API with rollup-plugin-svelte@5+.
 
-README needs to be reviewed and updated, with new API from [last versions of rollup-plugin-svelte](./README.rollup-plugin-svelte.md).
+README needs to be reviewed and updated, with new API from [last versions of rollup-plugin-svelte](https://github.com/sveltejs/rollup-plugin-svelte/blob/master/README.md).
 
 Please refer to the [legacy README](./README.v0.x.md) for information about the previous versions of this plugin.

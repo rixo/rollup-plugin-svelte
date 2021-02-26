@@ -1,5 +1,9 @@
 # rollup-plugin-svelte changelog
 
+## 7.1.0
+
+* Preprocessor sourcemap support ([#157](https://github.com/sveltejs/rollup-plugin-svelte/pull/157))
+
 ## 7.0.0
 
 * New minimum version requirements ([#138](https://github.com/sveltejs/rollup-plugin-svelte/pull/138), [#142](https://github.com/sveltejs/rollup-plugin-svelte/pull/142)):
@@ -12,7 +16,7 @@
 * Pass relative `filename` to svelte compiler ([#131](https://github.com/sveltejs/rollup-plugin-svelte/pull/131))
 * Link `sourcemap` with source correctly ([#140](https://github.com/sveltejs/rollup-plugin-svelte/pull/140))
 * Respect `sourcemapExcludeSources` Rollup config ([#93](https://github.com/sveltejs/rollup-plugin-svelte/pull/93))
-* Keep keep all sourcemaps from chunk ([#44](https://github.com/sveltejs/rollup-plugin-svelte/pull/44))
+* Keep all sourcemaps from chunk ([#44](https://github.com/sveltejs/rollup-plugin-svelte/pull/44))
 
 ## 6.1.1
 
