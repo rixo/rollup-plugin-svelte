@@ -8,6 +8,16 @@ const { createMakeHot } = require('svelte-hmr');
 const PREFIX = '[rollup-plugin-svelte]';
 const pkg_export_errors = new Set();
 
+const svelte_packages = [
+	'svelte/animate',
+	'svelte/easing',
+	'svelte/internal',
+	'svelte/motion',
+	'svelte/store',
+	'svelte/transition',
+	'svelte'
+];
+
 const splitQuery = url => {
 	const parts = url.split('?');
 	if (parts.length < 2) return [parts[0], ''];
@@ -45,6 +55,8 @@ module.exports = function (options = {}) {
 		console.warn(`${PREFIX} Unknown "${key}" option. Please use "compilerOptions" for any Svelte compiler configuration.`);
 	}
 
+	// --- Virtual CSS ---
+
 	// [filename]:[chunk]
 	const cache_emit = new Map;
 	const { onwarn, emitCss=true } = rest;
@@ -56,21 +68,26 @@ module.exports = function (options = {}) {
 		compilerOptions.css = false;
 	}
 
-	if (rest.hot && !compilerOptions.dev) {
-		console.info(`${PREFIX} Disabling HMR because "dev" option is disabled.`);
-		rest.hot = false;
-	}
+	// --- HMR ---
 
-	const makeHot = rest.hot && createMakeHot({
-		walk,
-		// Resolving runtime deps of svelte-hmr to absolute path because it is
-		// a transitive deps to the user's app, and it might not be "visible" with
-		// strict package managers like pnpm.
-		// NOTE Can't use require.resolve here, because this moduled might end up
-		// 		  bundled to ESM in Kit.
-		adapter: relative.resolve('svelte-hmr/runtime/proxy-adapter-dom.js'),
-		hotApi: relative.resolve('svelte-hmr/runtime/hot-api-esm.js'),
-	});
+	let makeHot;
+
+	const initMakeHot = () => {
+		if (rest.hot) {
+			makeHot = createMakeHot({
+				walk,
+				// Resolving runtime deps of svelte-hmr to absolute path because it is
+				// a transitive deps to the user's app, and it might not be "visible" with
+				// strict package managers like pnpm.
+				// NOTE Can't use require.resolve here, because this moduled might end up
+				// 		  bundled to ESM in Kit.
+				adapter: relative.resolve('svelte-hmr/runtime/proxy-adapter-dom.js'),
+				hotApi: relative.resolve('svelte-hmr/runtime/hot-api-esm.js'),
+			});
+		} else {
+			makeHot = null;
+		}
+	};
 
 	// --- Vite 2 support ---
 
@@ -120,8 +137,10 @@ module.exports = function (options = {}) {
 				// mime type" errors in the browser (e.g. on very first run, or when
 				// running dev after build sometimes).
 				optimizeDeps: {
-					exclude: ['svelte']
+					exclude: svelte_packages
 				},
+				// Prevent duplicated svelte runtimes with symlinked Svelte libs.
+				dedupe: ['svelte']
 			};
 		},
 
@@ -134,6 +153,25 @@ module.exports = function (options = {}) {
 		},
 
 		// --- Shared Rollup / Vite hooks ---
+
+		/**
+		 * We need to resolve hot or not after knowing if we are in Vite or not.
+		 *
+		 * For hot and dev, Rollup defaults are off, while Vite defaults are auto
+		 * (that is, enabled in dev serve).
+		 */
+		buildStart() {
+			if (isViteDev) {
+				// enable if not specified
+				if (compilerOptions.dev == null) compilerOptions.dev = true;
+				if (rest.hot == null) rest.hot = true;
+			}
+			if (rest.hot && !compilerOptions.dev) {
+				console.info(`${PREFIX} Disabling HMR because "dev" option is disabled.`);
+				rest.hot = false;
+			}
+			initMakeHot();
+		},
 
 		/**
 		 * Resolve an import's full filepath.
