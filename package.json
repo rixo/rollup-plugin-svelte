@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-svelte-hot",
-  "version": "1.0.0-2",
+  "version": "1.0.0-3",
   "description": "Compile Svelte components with HMR support for Rollup or Nollup",
   "license": "MIT",
   "keywords": [

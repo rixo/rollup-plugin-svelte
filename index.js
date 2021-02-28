@@ -8,16 +8,6 @@ const { createMakeHot } = require('svelte-hmr');
 const PREFIX = '[rollup-plugin-svelte]';
 const pkg_export_errors = new Set();
 
-const svelte_packages = [
-	'svelte/animate',
-	'svelte/easing',
-	'svelte/internal',
-	'svelte/motion',
-	'svelte/store',
-	'svelte/transition',
-	'svelte'
-];
-
 const splitQuery = url => {
 	const parts = url.split('?');
 	if (parts.length < 2) return [parts[0], ''];
@@ -137,7 +127,7 @@ module.exports = function (options = {}) {
 				// mime type" errors in the browser (e.g. on very first run, or when
 				// running dev after build sometimes).
 				optimizeDeps: {
-					exclude: svelte_packages
+					exclude: ['svelte']
 				},
 				resolve: {
 					// Prevent duplicated svelte runtimes with symlinked Svelte libs.
