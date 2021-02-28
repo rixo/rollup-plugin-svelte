@@ -1,6 +1,6 @@
 # rollup-plugin-svelte changelog
 
-**NOTE** This is the changelog of the upstream plugin. Changelog of the hot fork is [this one](./CHANGELOG.hot.md) (kept this way for mergeability reasons).
+:warning: **NOTE** This is the changelog of the upstream plugin. Changelog of the hot fork is [this one](./CHANGELOG.hot.md) (kept this way for mergeability reasons). :warning:
 
 ## 7.1.0
 

@@ -1,6 +1,6 @@
 # rollup-plugin-svelte-hot changelog
 
-NOTE The [other Changelog](./CHANGELOG.md) is the one of the plugin this one is mimicking.
+:warning: **NOTE** The [other Changelog](./CHANGELOG.md) is the one of the plugin this one is mimicking. :warning:
 
 ## 1.0.0
 
