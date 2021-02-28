@@ -139,8 +139,10 @@ module.exports = function (options = {}) {
 				optimizeDeps: {
 					exclude: svelte_packages
 				},
-				// Prevent duplicated svelte runtimes with symlinked Svelte libs.
-				dedupe: ['svelte']
+				resolve: {
+					// Prevent duplicated svelte runtimes with symlinked Svelte libs.
+					dedupe: ['svelte']
+				}
 			};
 		},
 
