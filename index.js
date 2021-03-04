@@ -99,8 +99,8 @@ module.exports = function (options = {}) {
 				// strict package managers like pnpm.
 				// NOTE Can't use require.resolve here, because this moduled might end up
 				// 		  bundled to ESM in Kit.
-				adapter: relative.resolve('svelte-hmr/runtime/proxy-adapter-dom.js'),
-				hotApi: relative.resolve('svelte-hmr/runtime/hot-api-esm.js'),
+				adapter: relative.resolve('svelte-hmr/runtime/proxy-adapter-dom.js', __dirname),
+				hotApi: relative.resolve('svelte-hmr/runtime/hot-api-esm.js', __dirname),
 			});
 		} else {
 			makeHot = null;
