@@ -202,11 +202,16 @@ module.exports = function (options = {}) {
 			const cssModules = server.moduleGraph.getModulesByFile(file + '.css');
 			const jsModules = server.moduleGraph.getModulesByFile(file);
 
+			const hasJsModules = jsModules && jsModules.size > 0;
+			const hasCssModules = cssModules && cssModules.size > 0;
+
+			if (!hasJsModules && !hasCssModules) return;
+
 			const hash = cssHashes.get(file);
-			if (jsModules.size > 0 && jsChanged(hash, cachedJs.code, newJs)) {
+			if (hasJsModules && jsChanged(hash, cachedJs.code, newJs)) {
 				affectedModules.push(...jsModules);
 			}
-			if (cssModules.size > 0 && cssChanged(cachedCss.code, newCss)) {
+			if (hasCssModules && cssChanged(cachedCss.code, newCss)) {
 				affectedModules.push(...cssModules);
 			}
 
