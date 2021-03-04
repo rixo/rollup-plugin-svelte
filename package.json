@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-svelte-hot",
-  "version": "1.0.0-3",
+  "version": "1.0.0-4",
   "description": "Compile Svelte components with HMR support for Rollup or Nollup",
   "license": "MIT",
   "keywords": [
@@ -32,13 +32,13 @@
     "node": ">=10"
   },
   "peerDependencies": {
-    "svelte": ">=3.5.0",
-    "rollup": ">=2.0.0"
+    "rollup": ">=2.0.0",
+    "svelte": ">=3.5.0"
   },
   "dependencies": {
-    "require-relative": "^0.8.7",
     "@rollup/pluginutils": "^4.1.0",
-    "svelte-hmr": "^0.12.4"
+    "require-relative": "^0.8.7",
+    "svelte-hmr": "^0.12.9"
   },
   "devDependencies": {
     "eslint": "^7.14.0",

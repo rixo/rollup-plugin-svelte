@@ -29,6 +29,34 @@ const plugin_options = new Set([
 	'hot',
 ]);
 
+const cssChanged = (a, b) => {
+	if (!a && !b) return false;
+	if (!a && b) return true;
+	if (a && !b) return true;
+	return a !== b;
+};
+
+const normalizeNonCss = (code, cssHash) => {
+	// trim HMR transform
+	const indexHmrTransform = code.indexOf('import * as ___SVELTE_HMR_HOT_API from');
+	if (indexHmrTransform !== -1) code = code.slice(0, indexHmrTransform);
+	// remove irrelevant bits
+	return code
+		// ignore css hashes in the code (that have changed, necessarily)
+		.replace(new RegExp('\\s*\\b' + cssHash + '\\b\\s*', 'g'), '')
+		.replace(/\s*attr_dev\([^,]+,\s*"class",\s*""\);?\s*/g, '')
+		// Svelte now adds locations in dev mode, code locations can change when
+		// CSS change, but we're unaffected (not real behaviour changes)
+		.replace(/\s*\badd_location\s*\([^)]*\)\s*;?/g, '');
+};
+
+const jsChanged = (hash, a, b) => {
+	if (!a && !b) return false;
+	if (!a && b) return true;
+	if (a && !b) return true;
+	return normalizeNonCss(a, hash) !== normalizeNonCss(b, hash);
+};
+
 /**
  * @param [options] {Partial<import('.').Options>}
  * @returns {import('rollup').Plugin}
@@ -80,6 +108,9 @@ module.exports = function (options = {}) {
 	};
 
 	// --- Vite 2 support ---
+
+	const transformCache = new Map();
+	const cssHashes = new Map();
 
 	let viteConfig;
 	let isViteDev = !!process.env.ROLLUP_WATCH;
@@ -144,6 +175,48 @@ module.exports = function (options = {}) {
 			viteConfig = config;
 		},
 
+		async handleHotUpdate(ctx) {
+			const { file, server, read } = ctx;
+			// guards
+			if (!emitCss) return;
+			if (!rest.hot) return;
+			if (!filter(file)) return;
+
+			// resolve existing from caches
+			const id = resolveViteUrl(file);
+			const cssId = id + '.css';
+			const cachedCss = cache_emit.get(cssId);
+			const cachedJs = transformCache.get(id);
+
+			// clear cache to avoid transform from using it
+			transformCache.delete(id);
+
+			// guard: no cached result
+			if (!cachedCss || !cachedJs) return;
+
+			// repopulate caches by running transform
+			const { code: newJs } = await this.transform(await read(), file, false) || {};
+			const { code: newCss } = cache_emit.get(cssId) || {};
+
+			const affectedModules = [];
+			const cssModules = server.moduleGraph.getModulesByFile(file + '.css');
+			const jsModules = server.moduleGraph.getModulesByFile(file);
+
+			const hash = cssHashes.get(file);
+			if (jsModules.size > 0 && jsChanged(hash, cachedJs.code, newJs)) {
+				affectedModules.push(...jsModules);
+			}
+			if (cssModules.size > 0 && cssChanged(cachedCss.code, newCss)) {
+				affectedModules.push(...cssModules);
+			}
+
+			for (const m of affectedModules) {
+				server.moduleGraph.invalidateModule(m);
+			}
+
+			return affectedModules;
+		},
+
 		// --- Shared Rollup / Vite hooks ---
 
 		/**
@@ -154,9 +227,18 @@ module.exports = function (options = {}) {
 		 */
 		buildStart() {
 			if (isViteDev) {
-				// enable if not specified
+				// enable dev/hot in dev serve, if not specified
 				if (compilerOptions.dev == null) compilerOptions.dev = true;
 				if (rest.hot == null) rest.hot = true;
+				if (rest.hot && emitCss && !compilerOptions.cssHash) {
+					compilerOptions.cssHash = ({hash, filename}) => {
+						const file = path.resolve(filename);
+						const id = hash(file).padEnd(12, 0).slice(0, 12);
+						const cssHash = `svelte-${id}`;
+						cssHashes.set(file, cssHash);
+						return cssHash;
+					};
+				}
 			}
 			if (rest.hot && !compilerOptions.dev) {
 				console.info(`${PREFIX} Disabling HMR because "dev" option is disabled.`);
@@ -225,6 +307,14 @@ module.exports = function (options = {}) {
 		async transform(code, id, ssr = false) {
 			if (!filter(id)) return null;
 
+			if (isVite()) {
+				const cacheKey = resolveViteUrl(id);
+				const cached = transformCache.get(cacheKey);
+				if (cached) {
+					return cached;
+				}
+			}
+
 			const extension = path.extname(id);
 			if (!~extensions.indexOf(extension)) return null;
 
@@ -251,19 +341,16 @@ module.exports = function (options = {}) {
 				else this.warn(warning);
 			});
 
-			if (emitCss && compiled.css.code) {
-				let fname;
-				if (isVite()) {
-					const url = resolveViteUrl(id);
-					fname = url + '.css';
-					// NOTE don't use `?t=`, it gets stripped by Vite
-					const vname = isViteDev ? fname + '?vt=' + Date.now() : fname;
-					compiled.js.code += `\nimport ${JSON.stringify(vname)};\n`;
-				} else {
-					fname = id.replace(new RegExp(`\\${extension}$`), '.css');
+			if (emitCss) {
+				const fname = isVite()
+					? resolveViteUrl(id) + '.css'
+					: id.replace(new RegExp(`\\${extension}$`), '.css');
+				if (compiled.css.code) {
 					compiled.js.code += `\nimport ${JSON.stringify(fname)};\n`;
+					cache_emit.set(fname, compiled.css);
+				} else {
+					cache_emit.set(fname, {code: ''});
 				}
-				cache_emit.set(fname, compiled.css);
 			}
 
 			if (makeHot && !ssr) {
@@ -271,7 +358,7 @@ module.exports = function (options = {}) {
 					id,
 					compiledCode: compiled.js.code,
 					hotOptions: {
-						injectCss: !rest.emitCss,
+						injectCss: !emitCss,
 						...rest.hot,
 					},
 					compiled,
@@ -284,6 +371,11 @@ module.exports = function (options = {}) {
 				dependencies.forEach(this.addWatchFile);
 			} else {
 				compiled.js.dependencies = dependencies;
+			}
+
+			if (isVite()) {
+				const cacheKey = resolveViteUrl(id);
+				transformCache.set(cacheKey, compiled.js);
 			}
 
 			return compiled.js;
