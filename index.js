@@ -73,6 +73,10 @@ module.exports = function (options = {}) {
 		console.warn(`${PREFIX} Unknown "${key}" option. Please use "compilerOptions" for any Svelte compiler configuration.`);
 	}
 
+	// --- Log ---
+
+	let log = console;
+
 	// --- Virtual CSS ---
 
 	// [filename]:[chunk]
@@ -231,6 +235,9 @@ module.exports = function (options = {}) {
 		 * (that is, enabled in dev serve).
 		 */
 		buildStart() {
+			if (!isVite()) {
+				log = this;
+			}
 			if (isViteDev) {
 				// enable dev/hot in dev serve, if not specified
 				if (compilerOptions.dev == null) compilerOptions.dev = true;
@@ -342,8 +349,8 @@ module.exports = function (options = {}) {
 
 			(compiled.warnings || []).forEach(warning => {
 				if (!emitCss && warning.code === 'css-unused-selector') return;
-				if (onwarn) onwarn(warning, this.warn);
-				else this.warn(warning);
+				if (onwarn) onwarn(warning, log.warn);
+				else log.warn(warning);
 			});
 
 			if (emitCss) {
