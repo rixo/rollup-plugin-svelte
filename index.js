@@ -308,6 +308,10 @@ module.exports = function (options = {}) {
 		 * NOTE: If `emitCss`, append static `import` to virtual CSS file.
 		 */
 		async transform(code, id, ssr = false) {
+			if (!isVite()) {
+				log = this;
+			}
+
 			if (!filter(id)) return null;
 
 			if (isVite()) {
