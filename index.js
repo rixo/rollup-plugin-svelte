@@ -96,16 +96,7 @@ module.exports = function (options = {}) {
 
 	const initMakeHot = () => {
 		if (rest.hot) {
-			makeHot = createMakeHot({
-				walk,
-				// Resolving runtime deps of svelte-hmr to absolute path because it is
-				// a transitive deps to the user's app, and it might not be "visible" with
-				// strict package managers like pnpm.
-				// NOTE Can't use require.resolve here, because this moduled might end up
-				// 		  bundled to ESM in Kit.
-				adapter: relative.resolve('svelte-hmr/runtime/proxy-adapter-dom.js', __dirname),
-				hotApi: relative.resolve('svelte-hmr/runtime/hot-api-esm.js', __dirname),
-			});
+			makeHot = createMakeHot({ walk });
 		} else {
 			makeHot = null;
 		}

@@ -1,7 +1,7 @@
 dependencies:
   '@rollup/pluginutils': 4.1.0_rollup@2.39.1
   require-relative: 0.8.7
-  svelte-hmr: 0.12.9_svelte@3.34.0
+  svelte-hmr: 0.14.3_svelte@3.34.0
 devDependencies:
   eslint: 7.20.0
   rollup: 2.39.1
@@ -825,14 +825,14 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==
-  /svelte-hmr/0.12.9_svelte@3.34.0:
+  /svelte-hmr/0.14.3_svelte@3.34.0:
     dependencies:
       svelte: 3.34.0
     dev: false
     peerDependencies:
       svelte: '>=3.19.0'
     resolution:
-      integrity: sha512-SGE7Odznj4dqZtUVIWcoPCvZ9gHImxVIIjrz+O3DDSi0j4OaSLim6MRF4UdhlBKeW3glSRc+tXNSKYvM5x+Dyw==
+      integrity: sha512-N56xX405zLMw2tpGHKRx5h+kmdeZwxI21pvyC6OyBHJDCF6DlwWBm9TifdQmSD4dloWSmpDPzHWYa3CSjfopUg==
   /svelte/3.34.0:
     dev: true
     engines:
@@ -928,5 +928,5 @@ specifiers:
   sander: ^0.6.0
   source-map: ^0.7.3
   svelte: ^3.30.0
-  svelte-hmr: ^0.12.9
+  svelte-hmr: ^0.14.3
   uvu: ^0.4.1
