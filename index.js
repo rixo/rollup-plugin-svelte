@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const relative = require('require-relative');
 const { createFilter } = require('@rollup/pluginutils');
-const { compile, preprocess, walk } = require('svelte/compiler');
 const { createMakeHot } = require('svelte-hmr');
 
 const PREFIX = '[rollup-plugin-svelte]';
@@ -62,9 +61,11 @@ const jsChanged = (hash, a, b) => {
  * @returns {import('rollup').Plugin}
  */
 module.exports = function (options = {}) {
-	const { compilerOptions={}, ...rest } = options;
+	const { compilerOptions={}, svelte, ...rest } = options;
 	const extensions = rest.extensions || ['.svelte'];
 	const filter = createFilter(rest.include, rest.exclude);
+
+	const { compile, preprocess, walk } = svelte || require('svelte/compiler');
 
 	compilerOptions.format = 'esm';
 
