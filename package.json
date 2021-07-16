@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-svelte-hot",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Compile Svelte components with HMR support for Rollup or Nollup",
   "main": "index.js",
   "types": "index.d.ts",
@@ -18,7 +18,13 @@
     "prepublishOnly": "npm run lint && npm test"
   },
   "repository": "git@github.com:rixo/rollup-plugin-svelte.git",
-  "keywords": ["svelte", "hot", "hmr", "nollup", "rollup"],
+  "keywords": [
+    "svelte",
+    "hot",
+    "hmr",
+    "nollup",
+    "rollup"
+  ],
   "author": "Rich Harris",
   "license": "MIT",
   "bugs": {
@@ -42,11 +48,13 @@
     "svelte-hmr": "^0.14.6"
   },
   "peerDependencies": {
+    "nollup": ">=0.8.4",
     "rollup": ">=1.19.2",
-    "svelte": ">=3.19.0",
-    "nollup": ">=0.8.4"
+    "svelte": ">=3.19.0"
   },
   "peerDependenciesMeta": {
-    "nollup": { "optional": true }
+    "nollup": {
+      "optional": true
+    }
   }
 }
