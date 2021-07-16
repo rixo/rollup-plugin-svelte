@@ -44,10 +44,10 @@
     "require-relative": "^0.8.7",
     "rollup-plugin-hot-nollup": "^0.1.2",
     "rollup-pluginutils": "^2.8.2",
-    "sourcemap-codec": "^1.4.8",
-    "svelte-hmr": "^0.14.6"
+    "sourcemap-codec": "^1.4.8"
   },
   "peerDependencies": {
+    "svelte-hmr": ">=0.14",
     "nollup": ">=0.8.4",
     "rollup": ">=1.19.2",
     "svelte": ">=3.19.0"
