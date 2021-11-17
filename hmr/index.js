@@ -18,7 +18,7 @@ const svelteHmr = (hotOptions = {}, pluginOptions = {}) => {
 		test = process.env.NODE_ENV === 'test',
 	} = hotOptions;
 
-	const makeHot = createMakeHot({ walk });
+	const makeHot = createMakeHot({ walk, hotOptions });
 
 	const aliases = {
 		[hotApiAlias]: makeHot.hotApi,
