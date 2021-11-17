@@ -47,7 +47,7 @@
     "sourcemap-codec": "^1.4.8"
   },
   "peerDependencies": {
-    "svelte-hmr": ">=0.14",
+    "svelte-hmr": "*",
     "nollup": ">=0.8.4",
     "rollup": ">=1.19.2",
     "svelte": ">=3.19.0"
